@@ -15,12 +15,6 @@ class _RegisterPageStanState extends State<RegisterPageStan> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final FocusNode _nameFocusNode = FocusNode();
-  final FocusNode _stanNameFocusNode = FocusNode();
-  final FocusNode _phoneFocusNode = FocusNode();
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
-
   // get authservice
   final _authService = AuthService();
 
@@ -51,21 +45,6 @@ class _RegisterPageStanState extends State<RegisterPageStan> {
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _stanNameController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _nameFocusNode.dispose();
-    _stanNameFocusNode.dispose();
-    _phoneFocusNode.dispose();
-    _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -79,35 +58,30 @@ class _RegisterPageStanState extends State<RegisterPageStan> {
             Text('daftar sebagai stan'),
             TextField(
               controller: _nameController,
-              focusNode: _nameFocusNode,
               decoration: const InputDecoration(
                 labelText: 'Name',
               ),
             ),
             TextField(
               controller: _stanNameController,
-              focusNode: _stanNameFocusNode,
               decoration: const InputDecoration(
                 labelText: 'Stan Name',
               ),
             ),
             TextField(
               controller: _phoneController,
-              focusNode: _phoneFocusNode,
               decoration: const InputDecoration(
                 labelText: 'Phone Number',
               ),
             ),
             TextField(
               controller: _emailController,
-              focusNode: _emailFocusNode,
               decoration: const InputDecoration(
                 labelText: 'Email',
               ),
             ),
             TextField(
               controller: _passwordController,
-              focusNode: _passwordFocusNode,
               decoration: const InputDecoration(
                 labelText: 'Password',
               ),
