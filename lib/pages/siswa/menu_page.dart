@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ukk_kantin/models/restaurant.dart';
+import 'detail_menu_page.dart'; // new import
 
 class MenuPage extends StatelessWidget {
   final Restaurant restaurant;
@@ -20,6 +21,15 @@ class MenuPage extends StatelessWidget {
             title: Text(menu.name),
             subtitle: Text(menu.description ?? ''),
             trailing: Text('\$${menu.price.toStringAsFixed(2)}'),
+            onTap: () {
+              // added onTap navigation
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailMenuPage(menu: menu),
+                ),
+              );
+            },
           );
         },
       ),
