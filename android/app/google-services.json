@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353985894147",
+    "project_id": "ukk-kantin-e2bdf",
+    "storage_bucket": "ukk-kantin-e2bdf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353985894147:android:d7f24cd8cca7495438bb36",
+        "android_client_info": {
+          "package_name": "com.example.ukk_kantin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3gMMzOxM1u9FdbvMf3PPdwdPag_gXOIw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
