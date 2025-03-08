@@ -16,14 +16,6 @@ class ProfilPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profil Page'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              logout();
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: SafeArea(
@@ -32,7 +24,7 @@ class ProfilPage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               ProfilMenuButton(
-                title: 'Ubah Nama',
+                title: 'Ubah Profil',
                 icon: IconsaxPlusBold.message_edit,
                 onTap: () {},
               ),
