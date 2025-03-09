@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ukk_kantin/models/restaurant.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:ukk_kantin/models/siswa/restaurant.dart';
 import 'menu_page.dart';
 
 class HomePageSiswa extends StatelessWidget {
@@ -30,9 +31,9 @@ class HomePageSiswa extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(IconsaxPlusBold.shopping_cart),
             onPressed: () {
-              // Implement search functionality
+              Navigator.pushNamed(context, '/cart');
             },
           ),
         ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ukk_kantin/models/restaurant.dart';
+import 'package:ukk_kantin/models/siswa/restaurant.dart';
 import 'detail_menu_page.dart';
 
 class MenuPage extends StatelessWidget {

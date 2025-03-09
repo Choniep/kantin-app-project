@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ukk_kantin/pages/siswa/cart_page.dart';
 import 'package:ukk_kantin/pages/siswa/home_page_siswa.dart';
 import 'package:ukk_kantin/pages/siswa/main_screen_siswa_page.dart';
 import 'package:ukk_kantin/pages/stan/add_product_page.dart';
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String homePageSiswa = '/home_customer';
   static const String mainScreenSiswaPage = '/screen_siswa';
   static const String orderPageSiswa = '/order_page_siswa';
+  static const String cartPage = '/cart';
 
   // stan
   static const String homePageStan = '/home_stan';
@@ -55,6 +57,7 @@ class AppRoutes {
     homePageSiswa: (context) => const HomePageSiswa(),
     mainScreenSiswaPage: (context) => const MainScreenCustomerPage(),
     orderPageSiswa: (context) => const OrderListPage(),
+    cartPage: (context) => const CartPage(),
 
     // initial route
     initialRoute: (context) => const AuthGate(),

@@ -3,15 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:ukk_kantin/firebase_options.dart';
 import 'package:ukk_kantin/routes/app_routes.dart';
 import 'package:ukk_kantin/services/auth/auth_service.dart';
+import 'package:ukk_kantin/models/siswa/cart.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AuthService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => Cart()),
+      ],
       child: const MyApp(),
     ),
   );

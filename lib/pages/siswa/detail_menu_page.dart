@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ukk_kantin/models/menu.dart';
+import 'package:ukk_kantin/models/siswa/cart_item.dart';
+import 'package:ukk_kantin/models/siswa/cart.dart';
 
-class DetailMenuPage extends StatelessWidget {
+class DetailMenuPage extends StatefulWidget {
   final Menu menu;
-
   const DetailMenuPage({Key? key, required this.menu}) : super(key: key);
+
+  @override
+  _DetailMenuPageState createState() => _DetailMenuPageState();
+}
+
+class _DetailMenuPageState extends State<DetailMenuPage> {
+  int _quantity = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +42,7 @@ class DetailMenuPage extends StatelessWidget {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage(menu.photo),
+                            image: AssetImage(widget.menu.photo),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -60,7 +69,7 @@ class DetailMenuPage extends StatelessWidget {
                       children: [
                         // Menu name
                         Text(
-                          menu.name,
+                          widget.menu.name,
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium
@@ -71,7 +80,7 @@ class DetailMenuPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         // Price
                         Text(
-                          'Rp ${menu.price.toStringAsFixed(0)}',
+                          'Rp ${widget.menu.price.toStringAsFixed(0)}',
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: Theme.of(context).primaryColor,
@@ -89,11 +98,34 @@ class DetailMenuPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          menu.description ?? 'No description available',
+                          widget.menu.description ?? 'No description available',
                           style:
                               Theme.of(context).textTheme.bodyLarge?.copyWith(
                                     color: Colors.grey[600],
                                   ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Quantity'),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () {
+                                setState(() {
+                                  if (_quantity > 1) _quantity--;
+                                });
+                              },
+                            ),
+                            Text('$_quantity'),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () {
+                                setState(() {
+                                  _quantity++;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -118,7 +150,9 @@ class DetailMenuPage extends StatelessWidget {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // TODO: Implement add to cart functionality
+                Provider.of<Cart>(context, listen: false).addItem(
+                  CartItem(menu: widget.menu, quantity: _quantity),
+                );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Added to cart')),
                 );
