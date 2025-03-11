@@ -12,7 +12,7 @@ class ManageProductPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).pushNamed('/stan/product_list');
+              Navigator.of(context).pushNamed('/add_product');
             },
             icon: const Icon(IconsaxPlusBold.add),
           ),

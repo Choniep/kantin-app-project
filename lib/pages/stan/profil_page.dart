@@ -39,7 +39,7 @@ class ProfilPage extends StatelessWidget {
                 title: 'Manage Menu',
                 icon: IconsaxPlusBold.menu,
                 onTap: () {
-                  Navigator.pushNamed(context, '/add_product');
+                  Navigator.pushNamed(context, '/manage_product');
                 },
               ),
               ProfilMenuButton(
