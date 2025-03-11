@@ -41,6 +41,7 @@ dependencies:
   iconsax_plus: ^1.0.0
   image_picker: ^1.1.2
   intl: ^0.20.1
+  provider: ^6.1.2
   
 dev_dependencies:
   flutter_test:

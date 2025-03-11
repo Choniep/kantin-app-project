@@ -1,4 +1,6 @@
-import 'menu.dart';
+import 'package:ukk_kantin/models/siswa/cart_item.dart';
+
+import '../menu.dart';
 
 class Restaurant {
   final int id;

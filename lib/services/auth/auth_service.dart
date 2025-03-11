@@ -1,15 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-class AuthService {
-  // get instance of firebase auth
+class AuthService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // get current user
-  User? getCurrentUser() {
-    return _firebaseAuth.currentUser;
+  User? currentUser;
+
+  // Updated constructor to listen for auth state changes.
+  AuthService() {
+    _firebaseAuth.authStateChanges().listen((user) {
+      currentUser = user;
+      notifyListeners();
+    });
   }
 
   String? currentUserId; // buat simpen UID
@@ -99,7 +104,7 @@ class AuthService {
   }) async {
     try {
       // Dapatkan user yang sedang login
-      User? user = FirebaseAuth.instance.currentUser;
+      User? user = _firebaseAuth.currentUser;
 
       if (user == null) {
         throw Exception("User is not logged in");
@@ -128,7 +133,7 @@ class AuthService {
   }) async {
     try {
       // Dapatkan user yang sedang login
-      User? user = FirebaseAuth.instance.currentUser;
+      User? user = _firebaseAuth.currentUser;
 
       if (user == null) {
         throw Exception("User is not logged in");

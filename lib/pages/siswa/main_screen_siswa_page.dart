@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ukk_kantin/pages/siswa/home_page_siswa.dart';
 import 'package:ukk_kantin/pages/siswa/order_siswa_page.dart';
+import 'package:ukk_kantin/pages/siswa/profil_page_siswa.dart';
+import 'package:ukk_kantin/pages/stan/profil_page.dart';
 
 class MainScreenCustomerPage extends StatefulWidget {
   const MainScreenCustomerPage({super.key});
@@ -16,6 +18,7 @@ class _MainScreenCustomerPageState extends State<MainScreenCustomerPage> {
   static final List<Widget> _pages = <Widget>[
     const HomePageSiswa(),
     const OrderSiswaPage(),
+    const ProfilPageSiswa(),
   ];
 
   void _onItemTapped(int index) {
@@ -37,6 +40,10 @@ class _MainScreenCustomerPageState extends State<MainScreenCustomerPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.business),
             label: 'Order',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
           ),
         ],
         currentIndex: _selectedIndex,
