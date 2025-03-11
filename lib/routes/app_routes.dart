@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ukk_kantin/pages/siswa/cart_page.dart';
 import 'package:ukk_kantin/pages/siswa/home_page_siswa.dart';
 import 'package:ukk_kantin/pages/siswa/main_screen_siswa_page.dart';
-import 'package:ukk_kantin/pages/stan/add_product_page.dart';
+import 'package:ukk_kantin/pages/stan/manage_product_page.dart';
 import 'package:ukk_kantin/pages/stan/home_page_stan.dart';
 import 'package:ukk_kantin/pages/stan/main_screen_page.dart';
 import 'package:ukk_kantin/pages/stan/manage_discount_page.dart';
@@ -32,7 +32,7 @@ class AppRoutes {
   static const String orderListPage = '/order_list';
   static const String profilPage = '/profil';
   static const String mainScreenPage = '/screen_stan';
-  static const String addProductPage = '/add_product';
+  static const String manageProductPage = '/add_product';
   static const String manageDiscountPage = '/manage_discount';
 
   // initial route
@@ -50,7 +50,7 @@ class AppRoutes {
     mainScreenPage: (context) => const MainScreenPage(),
     profilPage: (context) => const ProfilPage(),
     orderListPage: (context) => const OrderListPage(),
-    addProductPage: (context) => const AddProductPage(),
+    manageProductPage: (context) => const ManageProductPage(),
     manageDiscountPage: (context) => const ManageDiscountPage(),
 
     // siswa

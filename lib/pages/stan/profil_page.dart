@@ -24,12 +24,12 @@ class ProfilPage extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               ProfilMenuButton(
-                title: 'Ubah Profil',
+                title: 'Edit Profil',
                 icon: IconsaxPlusBold.message_edit,
                 onTap: () {},
               ),
               ProfilMenuButton(
-                title: 'Manage Diskon',
+                title: 'Manage Discount',
                 icon: IconsaxPlusBold.receipt_discount,
                 onTap: () {
                   Navigator.pushNamed(context, '/manage_discount');

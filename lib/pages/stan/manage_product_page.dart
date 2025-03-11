@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 
-class ManageDiscountPage extends StatelessWidget {
-  const ManageDiscountPage({super.key});
+class ManageProductPage extends StatelessWidget {
+  const ManageProductPage({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Discount'),
+        title: const Text('Product'),
         actions: [
           IconButton(
-            icon: const Icon(IconsaxPlusBold.add),
             onPressed: () {
-              // Add Discount
+              Navigator.of(context).pushNamed('/stan/product_list');
             },
+            icon: const Icon(IconsaxPlusBold.add),
           ),
         ],
       ),
@@ -22,7 +22,7 @@ class ManageDiscountPage extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              Text('Manage Discount Page'),
+              Text('Add Product Page'),
             ],
           ),
         ),
