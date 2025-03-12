@@ -1,6 +1,8 @@
+import 'dart:core';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,8 @@ import 'package:ukk_kantin/models/stan/create_menu.dart';
 class MenuService {
   final CollectionReference _menuCollection =
       FirebaseFirestore.instance.collection('menu');
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Mendapatkan semua menu
   Future<List<CreateMenu>> getAllMenus() async {
@@ -37,8 +41,19 @@ class MenuService {
     String? deskripsi,
     int? idStan,
   }) async {
+    // Get the current user's UID
+    final String uid = _auth.currentUser!.uid;
+
     try {
-      // Membuat objek Menu
+      // Check if the user is signed in
+      if (uid.isEmpty) {
+        debugPrint('No user is currently signed in.');
+        return null; // Handle the case where no user is signed in
+      }
+
+      final CollectionReference menuCollection =
+          _firestore.collection("stan").doc(uid).collection("menu");
+
       final menu = CreateMenu(
         namaMakanan: namaMakanan,
         harga: harga,
@@ -48,8 +63,7 @@ class MenuService {
         idStan: idStan,
       );
 
-      // Konversi ke Map dan simpan ke Firestore
-      final DocumentReference docRef = await _menuCollection.add(menu.toMap());
+      final DocumentReference docRef = await menuCollection.add(menu.toMap());
       return docRef.id;
     } catch (e) {
       debugPrint('Error adding menu: $e');
@@ -90,6 +104,36 @@ class MenuService {
     } catch (e) {
       debugPrint('Error deleting menu: $e');
       return false;
+    }
+  }
+
+  Future<List<CreateMenu>> getCurrentUserMenus() async {
+    final String uid = _auth.currentUser!.uid;
+
+    try {
+      final CollectionReference menuCollection =
+          _firestore.collection("stan").doc(uid).collection("menu");
+
+      final QuerySnapshot querySnapshot = await menuCollection.get();
+
+      final List<CreateMenu> menus = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return CreateMenu(
+          id: doc.id,
+          namaMakanan: data['namaMakanan'],
+          harga: data['harga'],
+          jenis:
+              JenisMenu.values.firstWhere((e) => e.toString() == data['jenis']),
+          foto: data['foto'],
+          deskripsi: data['deskripsi'],
+          idStan: data['idStan'],
+        );
+      }).toList();
+
+      return menus;
+    } catch (e) {
+      debugPrint('Error getting menus: $e');
+      return [];
     }
   }
 
