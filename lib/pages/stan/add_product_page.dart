@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'dart:io';
@@ -5,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ukk_kantin/components/stan/textfield_deskripsi.dart';
 import 'package:ukk_kantin/components/stan/textfield_harga.dart';
 import 'package:ukk_kantin/components/stan/textfield_nama.dart';
+import 'package:ukk_kantin/models/stan/create_menu.dart';
+import 'package:ukk_kantin/services/canteen/menu_service.dart';
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({Key? key}) : super(key: key);
@@ -24,6 +27,22 @@ class _AddMenuPageState extends State<AddProductPage> {
 
   String _selectedCategory = 'Makanan'; // Default value
   List<String> _categories = ['Makanan', 'Minuman'];
+
+Future<String?> uploadImage(File image) async {
+  try {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference storageReference = FirebaseStorage.instance.ref().child('menu_images/$fileName');
+
+    UploadTask uploadTask = storageReference.putFile(image);
+    TaskSnapshot taskSnapshot = await uploadTask;
+
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+    return downloadUrl;
+  } catch (e) {
+    debugPrint('Error uploading image: $e');
+    return null;
+  }
+}
 
   Future getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -232,18 +251,49 @@ class _AddMenuPageState extends State<AddProductPage> {
                 TextFieldDeskripsi(
                     descriptionController: _descriptionController),
                 const SizedBox(height: 32),
-
+                
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate() && _image != null) {
-                        // Proses simpan data
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Menu berhasil disimpan')),
-                        );
+                        // Upload image to Firebase Storage
+                        String? imageUrl = await uploadImage(_image!);
+
+                        if (imageUrl != null) {
+                          // Call the addMenu method to save the product details
+                          MenuService menuService = MenuService();
+                          String? result = await menuService.addMenu(
+                            namaMakanan: _nameController.text,
+                            harga:
+                                double.tryParse(_priceController.text) ?? 0.0,
+                            jenis: _selectedCategory == 'Makanan'
+                                ? JenisMenu.makanan
+                                : JenisMenu.minuman,
+                            foto: imageUrl,
+                            deskripsi: _descriptionController.text,
+                          );
+
+                          if (result != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Menu berhasil disimpan')),
+                            );
+                            // Optionally, navigate back or clear the form
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Gagal menyimpan menu')),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Gagal mengupload foto')),
+                          );
+                        }
                       } else if (_image == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
