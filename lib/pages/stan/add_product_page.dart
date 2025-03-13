@@ -28,21 +28,22 @@ class _AddMenuPageState extends State<AddProductPage> {
   String _selectedCategory = 'Makanan'; // Default value
   List<String> _categories = ['Makanan', 'Minuman'];
 
-Future<String?> uploadImage(File image) async {
-  try {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageReference = FirebaseStorage.instance.ref().child('menu_images/$fileName');
+  Future<String?> uploadImage(File image) async {
+    try {
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageReference =
+          FirebaseStorage.instance.ref().child('menu_images/$fileName');
 
-    UploadTask uploadTask = storageReference.putFile(image);
-    TaskSnapshot taskSnapshot = await uploadTask;
+      UploadTask uploadTask = storageReference.putFile(image);
+      TaskSnapshot taskSnapshot = await uploadTask;
 
-    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-    return downloadUrl;
-  } catch (e) {
-    debugPrint('Error uploading image: $e');
-    return null;
+      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      return null;
+    }
   }
-}
 
   Future getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -179,7 +180,9 @@ Future<String?> uploadImage(File image) async {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 8),
+
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -251,7 +254,7 @@ Future<String?> uploadImage(File image) async {
                 TextFieldDeskripsi(
                     descriptionController: _descriptionController),
                 const SizedBox(height: 32),
-                
+
                 // Submit Button
                 SizedBox(
                   width: double.infinity,

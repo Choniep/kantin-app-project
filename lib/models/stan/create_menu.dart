@@ -5,7 +5,7 @@ class CreateMenu {
   final JenisMenu jenis;
   final String? foto;
   final String? deskripsi;
-  final int? idStan;
+  final String? idStan;
 
   CreateMenu({
     this.id,

@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-// file: lib/services/menu_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -39,16 +38,14 @@ class MenuService {
     required JenisMenu jenis,
     String? foto,
     String? deskripsi,
-    int? idStan,
+    String? idStan,
   }) async {
-    // Get the current user's UID
     final String uid = _auth.currentUser!.uid;
 
     try {
-      // Check if the user is signed in
       if (uid.isEmpty) {
         debugPrint('No user is currently signed in.');
-        return null; // Handle the case where no user is signed in
+        return null;
       }
 
       final CollectionReference menuCollection =
@@ -60,7 +57,7 @@ class MenuService {
         jenis: jenis,
         foto: foto,
         deskripsi: deskripsi,
-        idStan: idStan,
+        idStan: uid,
       );
 
       final DocumentReference docRef = await menuCollection.add(menu.toMap());
@@ -83,23 +80,39 @@ class MenuService {
   }
 
   // Memperbarui menu
-  Future<bool> updateMenu(CreateMenu menu) async {
+  Future<String?> updateMenu({
+    required String id,
+    required String namaMakanan,
+    required double harga,
+    required JenisMenu jenis,
+    String? foto,
+    String? deskripsi,
+  }) async {
     try {
-      if (menu.id != null) {
-        await _menuCollection.doc(menu.id).update(menu.toMap());
-        return true;
-      }
-      return false;
+      final Map<String, dynamic> data = {
+        'nama_makanan': namaMakanan,
+        'harga': harga,
+        'jenis': CreateMenu.jenisMenuToString(jenis),
+        'foto': foto,
+        'deskripsi': deskripsi,
+      };
+
+      await _menuCollection.doc(id).update(data);
+      return id;
     } catch (e) {
       debugPrint('Error updating menu: $e');
-      return false;
+      return null;
     }
   }
 
   // Menghapus menu
   Future<bool> deleteMenu(String menuId) async {
     try {
-      await _menuCollection.doc(menuId).delete();
+      final String uid = _auth.currentUser!.uid;
+      final DocumentReference menuDoc =
+          _firestore.collection("stan").doc(uid).collection("menu").doc(menuId);
+
+      await menuDoc.delete();
       return true;
     } catch (e) {
       debugPrint('Error deleting menu: $e');
@@ -118,16 +131,7 @@ class MenuService {
 
       final List<CreateMenu> menus = querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        return CreateMenu(
-          id: doc.id,
-          namaMakanan: data['namaMakanan'],
-          harga: data['harga'],
-          jenis:
-              JenisMenu.values.firstWhere((e) => e.toString() == data['jenis']),
-          foto: data['foto'],
-          deskripsi: data['deskripsi'],
-          idStan: data['idStan'],
-        );
+        return CreateMenu.fromMap(data, doc.id);
       }).toList();
 
       return menus;
@@ -154,7 +158,7 @@ class MenuService {
   }
 
   // Mendapatkan menu berdasarkan ID stan
-  Future<List<CreateMenu>> getMenusByStanId(int stanId) async {
+  Future<List<CreateMenu>> getMenusByStanId(String stanId) async {
     try {
       final QuerySnapshot snapshot =
           await _menuCollection.where('id_stan', isEqualTo: stanId).get();
