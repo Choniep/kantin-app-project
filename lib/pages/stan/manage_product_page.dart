@@ -13,18 +13,22 @@ class ManageProductPage extends StatefulWidget {
 
 class _ManageProductPageState extends State<ManageProductPage> {
   final MenuService _menuService = MenuService();
-  late Future<List<CreateMenu>> _menusFuture;
+  late Future<List<CreateMenu>> _menus;
 
   @override
   void initState() {
     super.initState();
-    _menusFuture = _menuService.getCurrentUserMenus();
+    _menus = fetchMenus(); // Fetch menus when the widget is initialized
   }
 
   Future<void> _refreshMenus() async {
     setState(() {
-      _menusFuture = _menuService.getCurrentUserMenus();
+      _menus = fetchMenus(); // Refresh the menus
     });
+  }
+
+  Future<List<CreateMenu>> fetchMenus() async {
+    return await _menuService.getCurrentUserMenus(); // Fetch the menus
   }
 
   @override
@@ -42,7 +46,7 @@ class _ManageProductPageState extends State<ManageProductPage> {
         ],
       ),
       body: FutureBuilder<List<CreateMenu>>(
-        future: _menusFuture,
+        future: _menus,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -157,8 +161,7 @@ class _ManageProductPageState extends State<ManageProductPage> {
                                     leading: const Icon(Icons.edit),
                                     title: const Text('Edit'),
                                     onTap: () {
-                                      Navigator.pop(
-                                          context); // Close the bottom sheet
+                                      Navigator.pop(context); // Close the bottom sheet
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) =>
@@ -171,8 +174,7 @@ class _ManageProductPageState extends State<ManageProductPage> {
                                     leading: const Icon(Icons.delete),
                                     title: const Text('Delete'),
                                     onTap: () async {
-                                      Navigator.pop(
-                                          context); // Close the bottom sheet
+                                      Navigator.pop(context); // Close the bottom sheet
                                       bool success = await _menuService
                                           .deleteMenu(menu.id!);
                                       if (success) {
