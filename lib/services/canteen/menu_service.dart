@@ -3,13 +3,9 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 
 class MenuService {
@@ -191,4 +187,54 @@ class MenuService {
       return [];
     }
   }
+
+  Future<bool> addDiscount({
+    required String menuId,
+    required String namaDiskon,
+    required DateTime tanggalMulai,
+    required DateTime tanggalSelesai,
+    required int diskon,
+    required String diskonType,
+  }) async {
+    
+    final String uid = _auth.currentUser!.uid;
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('stan')
+          .doc(uid)
+          .collection('menu')
+          .doc(menuId)
+          .collection('diskon')
+          .doc();
+
+      await docRef.set({
+        'nama_diskon': namaDiskon,
+        'tanggal_mulai': tanggalMulai,
+        'tanggal_selesai': tanggalSelesai,
+        'diskon': diskon,
+        'diskon_type': diskonType,
+      });
+
+      return true; // Indicate success
+    } catch (e) {
+      print('Error adding discount: $e');
+      return false; // Indicate failure
+    }
+  }
+  Future<List<Diskon>> getDiskonsForMenu(String menuId) async {
+  List<Diskon> diskons = [];
+  QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection('menu')
+      .doc(menuId)
+      .collection('diskon')
+      .get();
+
+  for (var doc in snapshot.docs) {
+    DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
+    DateTime tanggalBerakhir = (doc['tanggal_berakhir'] as Timestamp).toDate();
+    diskons.add(Diskon(tanggalMulai: tanggalMulai, tanggalBerakhir: tanggalBerakhir));
+  }
+
+  return diskons;
+}
 }

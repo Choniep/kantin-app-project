@@ -27,9 +27,16 @@ class _ManageProductPageState extends State<ManageProductPage> {
     });
   }
 
-  Future<List<CreateMenu>> fetchMenus() async {
-    return await _menuService.getCurrentUserMenus(); // Fetch the menus
+Future<List<CreateMenu>> fetchMenus() async {
+  List<CreateMenu> menus = await _menuService.getCurrentUserMenus();
+  
+  for (var menu in menus) {
+    List<Diskon> diskons = await _menuService.getDiskonsForMenu(menu.id!);
+    menu.checkDiskon(diskons); // Check if the menu is on discount
   }
+
+  return menus;
+}
 
   @override
   Widget build(BuildContext context) {

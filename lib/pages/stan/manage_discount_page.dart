@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:ukk_kantin/pages/stan/add_discount_page.dart';
 
 class ManageDiscountPage extends StatelessWidget {
   const ManageDiscountPage({super.key});
@@ -13,7 +14,9 @@ class ManageDiscountPage extends StatelessWidget {
           IconButton(
             icon: const Icon(IconsaxPlusBold.add),
             onPressed: () {
-              // Add Discount
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const AddDiscountPage())
+              );
             },
           ),
         ],

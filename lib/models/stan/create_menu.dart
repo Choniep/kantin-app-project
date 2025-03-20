@@ -6,6 +6,7 @@ class CreateMenu {
   final String? foto;
   final String? deskripsi;
   final String? idStan;
+  bool isDiskon; // Add this property
 
   CreateMenu({
     this.id,
@@ -15,9 +16,10 @@ class CreateMenu {
     this.foto,
     this.deskripsi,
     this.idStan,
+    this.isDiskon = false, // Default value
   });
 
-  // Enum untuk jenis menu
+  // Factory constructor to create a CreateMenu from a map
   factory CreateMenu.fromMap(Map<String, dynamic> map, String documentId) {
     return CreateMenu(
       id: documentId,
@@ -27,6 +29,7 @@ class CreateMenu {
       foto: map['foto'],
       deskripsi: map['deskripsi'],
       idStan: map['id_stan'],
+      isDiskon: map['isDiskon'] ?? false, // Initialize from map
     );
   }
 
@@ -38,27 +41,49 @@ class CreateMenu {
       'foto': foto,
       'deskripsi': deskripsi,
       'id_stan': idStan,
+      'isDiskon': isDiskon, // Include isDiskon in the map
     };
   }
 
-  // Helper method untuk konversi String ke enum JenisMenu
+  // Method to check if the current date is within any discount period
+  void checkDiskon(List<Diskon> diskons) {
+    DateTime now = DateTime.now();
+    isDiskon = diskons.any((diskon) {
+      DateTime startDate = diskon.tanggalMulai;
+      DateTime endDate = diskon.tanggalBerakhir;
+      return now.isAfter(startDate) && now.isBefore(endDate);
+    });
+  }
+
+  // Helper method for converting String to enum JenisMenu
   static JenisMenu _stringToJenisMenu(String? jenis) {
     if (jenis == 'makanan') {
       return JenisMenu.makanan;
     } else if (jenis == 'minuman') {
       return JenisMenu.minuman;
     }
-    // Default jika tidak cocok
+    // Default if not matched
     return JenisMenu.makanan;
   }
 
-  // Helper method untuk konversi enum JenisMenu ke String
+  // Helper method for converting enum JenisMenu to String
   static String jenisMenuToString(JenisMenu jenis) {
     return jenis.toString().split('.').last;
   }
 }
 
-// Enum untuk field jenis menu
+// Diskon model
+class Diskon {
+  DateTime tanggalMulai;
+  DateTime tanggalBerakhir;
+
+  Diskon({
+    required this.tanggalMulai,
+    required this.tanggalBerakhir,
+  });
+}
+
+// Enum for menu types
 enum JenisMenu {
   makanan,
   minuman,
