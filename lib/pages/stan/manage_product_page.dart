@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:ukk_kantin/services/canteen/diskon_sevice.dart';
 import 'package:ukk_kantin/services/canteen/menu_service.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 import 'package:ukk_kantin/pages/stan/edit_product_page.dart';
@@ -12,6 +13,7 @@ class ManageProductPage extends StatefulWidget {
 }
 
 class _ManageProductPageState extends State<ManageProductPage> {
+  final DiskonService _diskonService = DiskonService();
   final MenuService _menuService = MenuService();
   late Future<List<CreateMenu>> _menus;
 
@@ -27,16 +29,19 @@ class _ManageProductPageState extends State<ManageProductPage> {
     });
   }
 
-Future<List<CreateMenu>> fetchMenus() async {
-  List<CreateMenu> menus = await _menuService.getCurrentUserMenus();
-  
-  for (var menu in menus) {
-    List<Diskon> diskons = await _menuService.getDiskonsForMenu(menu.id!);
-    menu.checkDiskon(diskons); // Check if the menu is on discount
-  }
+  Future<List<CreateMenu>> fetchMenus() async {
+    // Fetch your menus from the service
+    List<CreateMenu> menus = await _menuService.getCurrentUserMenus();
 
-  return menus;
-}
+    // Fetch discounts for each menu and check if they are active
+    for (var menu in menus) {
+      List<Diskon> diskons = await _menuService.getDiskonsForMenu(menu.id!);
+      _diskonService.checkDiskon(
+          menu, diskons); // Check discounts for each menu
+    }
+
+    return menus;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +63,10 @@ Future<List<CreateMenu>> fetchMenus() async {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading menus'));
+            // Print the error to the console
+            print('Error loading menus: ${snapshot.error}');
+            return Center(
+                child: Text('Error loading menus: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No menus available'));
           }
@@ -121,20 +129,33 @@ Future<List<CreateMenu>> fetchMenus() async {
                                 ),
                               ),
                               const SizedBox(height: 4),
+                              // Display original price crossed out if there's a discount
+                              if (menu.isDiskon)
+                                Text(
+                                  'Rp ${menu.harga.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                    decoration: TextDecoration
+                                        .lineThrough, // Strikethrough effect
+                                  ),
+                                ),
+                              // Display discounted price
                               Text(
-                                'Rp ${menu.harga.toStringAsFixed(0)}',
+                                'Rp ${menu.harga.toStringAsFixed(0)}', // Show discounted price
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey[600],
+                                  color: menu.isDiskon
+                                      ? Colors.red
+                                      : Colors.grey[600],
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
+                                    horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
                                   color: menu.jenis == JenisMenu.makanan
                                       ? Colors.orange[50]
@@ -153,6 +174,23 @@ Future<List<CreateMenu>> fetchMenus() async {
                                   ),
                                 ),
                               ),
+                              if (menu
+                                  .isDiskon) // Show a label if there's a discount
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Text(
+                                    'DISKON',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
@@ -168,7 +206,8 @@ Future<List<CreateMenu>> fetchMenus() async {
                                     leading: const Icon(Icons.edit),
                                     title: const Text('Edit'),
                                     onTap: () {
-                                      Navigator.pop(context); // Close the bottom sheet
+                                      Navigator.pop(
+                                          context); // Close the bottom sheet
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) =>
@@ -181,7 +220,8 @@ Future<List<CreateMenu>> fetchMenus() async {
                                     leading: const Icon(Icons.delete),
                                     title: const Text('Delete'),
                                     onTap: () async {
-                                      Navigator.pop(context); // Close the bottom sheet
+                                      Navigator.pop(
+                                          context); // Close the bottom sheet
                                       bool success = await _menuService
                                           .deleteMenu(menu.id!);
                                       if (success) {

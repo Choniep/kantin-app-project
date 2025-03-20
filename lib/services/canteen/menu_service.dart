@@ -196,7 +196,6 @@ class MenuService {
     required int diskon,
     required String diskonType,
   }) async {
-    
     final String uid = _auth.currentUser!.uid;
     try {
       final docRef = FirebaseFirestore.instance
@@ -221,20 +220,27 @@ class MenuService {
       return false; // Indicate failure
     }
   }
+
   Future<List<Diskon>> getDiskonsForMenu(String menuId) async {
-  List<Diskon> diskons = [];
-  QuerySnapshot snapshot = await FirebaseFirestore.instance
-      .collection('menu')
-      .doc(menuId)
-      .collection('diskon')
-      .get();
+    final String uid = _auth.currentUser!.uid;
 
-  for (var doc in snapshot.docs) {
-    DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
-    DateTime tanggalBerakhir = (doc['tanggal_berakhir'] as Timestamp).toDate();
-    diskons.add(Diskon(tanggalMulai: tanggalMulai, tanggalBerakhir: tanggalBerakhir));
+    List<Diskon> diskons = [];
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('stan')
+        .doc(uid)
+        .collection('menu')
+        .doc(menuId)
+        .collection('diskon')
+        .get();
+
+    for (var doc in snapshot.docs) {
+      DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
+      DateTime tanggalBerakhir =
+          (doc['tanggal_selesai'] as Timestamp).toDate();
+      diskons.add(
+          Diskon(tanggalMulai: tanggalMulai, tanggalSelesai: tanggalBerakhir));
+    }
+
+    return diskons;
   }
-
-  return diskons;
-}
 }

@@ -45,16 +45,6 @@ class CreateMenu {
     };
   }
 
-  // Method to check if the current date is within any discount period
-  void checkDiskon(List<Diskon> diskons) {
-    DateTime now = DateTime.now();
-    isDiskon = diskons.any((diskon) {
-      DateTime startDate = diskon.tanggalMulai;
-      DateTime endDate = diskon.tanggalBerakhir;
-      return now.isAfter(startDate) && now.isBefore(endDate);
-    });
-  }
-
   // Helper method for converting String to enum JenisMenu
   static JenisMenu _stringToJenisMenu(String? jenis) {
     if (jenis == 'makanan') {
@@ -75,11 +65,11 @@ class CreateMenu {
 // Diskon model
 class Diskon {
   DateTime tanggalMulai;
-  DateTime tanggalBerakhir;
+  DateTime tanggalSelesai;
 
   Diskon({
     required this.tanggalMulai,
-    required this.tanggalBerakhir,
+    required this.tanggalSelesai,
   });
 }
 
