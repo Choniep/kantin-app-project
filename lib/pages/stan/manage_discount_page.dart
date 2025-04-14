@@ -155,7 +155,7 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Valid from: ${_formatDate(discount.tanggalMulai)} to ${_formatDate(discount.tanggalBerakhir)}',
+                          'Valid from: ${_formatDate(discount.tanggalMulai)} to ${_formatDate(discount.tanggalSelesai)}',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
