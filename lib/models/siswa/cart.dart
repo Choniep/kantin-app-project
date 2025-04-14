@@ -14,7 +14,7 @@ class Cart with ChangeNotifier {
       // Optionally handle error (e.g., show warning)
       return;
     }
-    _currentStanId = item.menu.stanId;
+    _currentStanId = int.parse(item.menu.stanId);
     // Check if item already exists, then update quantity; otherwise add
     int index = _items.indexWhere((ci) => ci.menu.id == item.menu.id);
     if (index != -1) {

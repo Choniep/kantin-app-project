@@ -81,7 +81,7 @@ class CartPage extends StatelessWidget {
                                         icon:
                                             const Icon(Icons.remove, size: 16),
                                         onPressed: () =>
-                                            cart.decrementItem(item.menu.id),
+                                            cart.decrementItem(int.parse(item.menu.id)),
                                       ),
                                     ),
                                     SizedBox(
@@ -102,7 +102,7 @@ class CartPage extends StatelessWidget {
                                         padding: EdgeInsets.zero,
                                         icon: const Icon(Icons.add, size: 16),
                                         onPressed: () =>
-                                            cart.incrementItem(item.menu.id),
+                                            cart.incrementItem(int.parse(item.menu.id)),
                                       ),
                                     ),
                                   ],

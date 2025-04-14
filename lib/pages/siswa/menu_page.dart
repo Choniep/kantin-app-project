@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:ukk_kantin/models/siswa/restaurant.dart';
 import 'detail_menu_page.dart';
 
@@ -12,6 +13,14 @@ class MenuPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(restaurant.name),
+        actions: [
+          IconButton(
+            icon: const Icon(IconsaxPlusBold.shopping_cart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/cart');
+            },
+          ),
+        ],
         elevation: 0,
       ),
       body: ListView.builder(
@@ -83,25 +92,35 @@ class MenuPage extends StatelessWidget {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            const SizedBox(height: 8), // Add some space
+                            // Price display
+                            if (menu.isDiskon) ...[
+                              Text(
+                                'Rp. ${menu.price.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                              const SizedBox(height: 4), // Space between prices
+                              Text(
+                                'Rp. ${menu.price.toStringAsFixed(2)}', // Placeholder for discounted price
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ] else ...[
+                              Text(
+                                'Rp. ${menu.price.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      margin: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '\$${menu.price.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),

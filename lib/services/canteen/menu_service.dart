@@ -236,16 +236,19 @@ class MenuService {
 
     for (var doc in snapshot.docs) {
       DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
-      DateTime tanggalBerakhir = (doc['tanggal_selesai'] as Timestamp).toDate();
+      DateTime tanggalSelesai = (doc['tanggal_selesai'] as Timestamp).toDate();
+      DateTime now = DateTime.now();
+      bool isActive = now.isAfter(tanggalMulai) && now.isBefore(tanggalSelesai) || now.isAtSameMomentAs(tanggalSelesai);
 
       diskons.add(
         Diskon(
           tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
+          tanggalSelesai: tanggalSelesai,
           diskon: doc['diskon'],
           diskonType: doc['diskon_type'],
           id: uid,
           namaDiskon: doc['nama_diskon'],
+          isActive: isActive
         ),
       );
     }

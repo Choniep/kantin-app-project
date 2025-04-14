@@ -1,10 +1,38 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:ukk_kantin/models/siswa/restaurant.dart';
+import 'package:ukk_kantin/models/menu.dart';
+import 'package:ukk_kantin/models/siswa/restaurant.dart'; // Ensure this is the correct import
 import 'menu_page.dart';
 
 class HomePageSiswa extends StatelessWidget {
   const HomePageSiswa({super.key});
+
+  Future<List<Restaurant>> _fetchRestaurants() async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('stan').get();
+    return Future.wait(snapshot.docs.map((doc) async {
+      final data = doc.data() as Map<String, dynamic>;
+      final menus = await _fetchMenus(doc.id);
+      return Restaurant(
+        id: doc.id,
+        name: data['nama_stan'] ?? 'Unknown Restaurant',
+        menus: menus,
+      );
+    }));
+  }
+
+  Future<List<Menu>> _fetchMenus(String restaurantId) async {
+    final QuerySnapshot menuSnapshot = await FirebaseFirestore.instance
+        .collection('stan')
+        .doc(restaurantId)
+        .collection('menu')
+        .get();
+    return menuSnapshot.docs
+        .map((menuDoc) =>
+            Menu.fromMap(menuDoc.data() as Map<String, dynamic>, menuDoc.id))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,74 +56,82 @@ class HomePageSiswa extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(IconsaxPlusBold.shopping_cart),
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart');
-            },
-          ),
-        ],
+        ),  
       ),
-      body: ListView(
-        children: [
-          // Categories Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Kategori',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 100,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildCategoryItem('Makanan', Icons.restaurant),
-                      _buildCategoryItem('Minuman', Icons.local_drink),
-                      _buildCategoryItem('Snack', Icons.cookie),
-                      _buildCategoryItem('Promo', Icons.discount),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+      body: FutureBuilder<List<Restaurant>>(
+        future: _fetchRestaurants(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+                child: Text('Error loading restaurants: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No restaurants available'));
+          }
 
-          // Restaurants Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Stan Tersedia',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+          final restaurants = snapshot.data!;
+          return ListView(
+            children: [
+              // Categories Section
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Kategori',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 100,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          _buildCategoryItem('Makanan', Icons.restaurant),
+                          _buildCategoryItem('Minuman', Icons.local_drink),
+                          _buildCategoryItem('Snack', Icons.cookie),
+                          _buildCategoryItem('Promo', Icons.discount),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: restaurants.length,
-                  itemBuilder: (context, index) {
-                    return _buildRestaurantCard(context, restaurants[index]);
-                  },
+              ),
+
+              // Restaurants Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Stan Tersedia',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: restaurants.length,
+                      itemBuilder: (context, index) {
+                        return _buildRestaurantCard(
+                            context, restaurants[index]);
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

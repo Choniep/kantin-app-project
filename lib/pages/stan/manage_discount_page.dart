@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:ukk_kantin/models/discount.dart'; // Ensure this is the correct import
 import 'package:ukk_kantin/pages/stan/add_discount_page.dart';
-import 'package:ukk_kantin/services/canteen/diskon_sevice.dart';
+import 'package:ukk_kantin/services/canteen/diskon_service.dart';
+import 'package:intl/intl.dart'; // For date formatting
 
 class ManageDiscountPage extends StatefulWidget {
   const ManageDiscountPage({super.key});
@@ -20,21 +21,62 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
   @override
   void initState() {
     super.initState();
-    _refreshDiscounts(); // Load discounts when the page is initialized
+    _discounts = _diskonService.getUserDiscounts();
   }
 
   Future<void> _refreshDiscounts() async {
+    setState(() {
+      _discounts = _diskonService.getUserDiscounts();
+    });
 
-    // Fetch the discounts for the user
-    _discounts = _diskonService.getUserDiscounts();
+    try {
+      final discountsList = await _discounts;
+      if (discountsList.isEmpty) {
+        print('No discounts found');
+      } else {
+        print(
+            'Discounts retrieved successfully: ${discountsList.length} discounts found.');
+      }
+    } catch (e) {
+      print('Error fetching discounts: $e');
+    }
+  }
 
-    // Wait for the Future to complete and check if the discounts are empty
-    List<Diskon> discountsList = await _discounts;
-    if (discountsList.isEmpty) {
-      print('No discounts found');
-    } else {
-      print(
-          'Discounts retrieved successfully: ${discountsList.length} discounts found.');
+  String _formatDate(DateTime date) {
+    return DateFormat('dd MMM yyyy').format(date);
+  }
+
+  Future<void> _deleteDiscount(Diskon discount) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Discount'),
+        content: const Text('Are you sure you want to delete this discount?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await _diskonService.deleteDiscount(discount.menuId!, discount.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Discount deleted successfully')),
+        );
+        await _refreshDiscounts();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete discount: $e')),
+        );
+      }
     }
   }
 
@@ -48,8 +90,7 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
             icon: const Icon(IconsaxPlusBold.add),
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => const AddDiscountPage()),
+                MaterialPageRoute(builder: (context) => const AddDiscountPage()),
               );
             },
           ),
@@ -86,9 +127,27 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                discount.namaDiskon,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteDiscount(discount),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
                         Text(
-                          discount
-                              .namaDiskon, // Ensure this field exists in your Diskon model
+                          'Menu: ${discount.menuName ?? 'No Menu Name'}',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -96,7 +155,7 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Valid from: ${discount.tanggalMulai} to ${discount.tanggalBerakhir}', // Ensure these fields exist
+                          'Valid from: ${_formatDate(discount.tanggalMulai)} to ${_formatDate(discount.tanggalBerakhir)}',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -104,7 +163,11 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Discount: ${discount.diskon} ${discount.diskonType}', // Ensure these fields exist
+                          discount.diskonType == 'persen'
+                              ? 'Discount: ${discount.diskon}%'
+                              : discount.diskonType == 'rupiah'
+                                  ? 'Discount: Rp. ${discount.diskon}'
+                                  : 'Discount: ${discount.diskon}',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],

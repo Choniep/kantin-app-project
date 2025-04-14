@@ -3,7 +3,7 @@ import 'package:ukk_kantin/models/siswa/cart_item.dart';
 import '../menu.dart';
 
 class Restaurant {
-  final int id;
+  final String id;
   final String name;
   final List<Menu> menus;
   final double rating;
@@ -24,50 +24,30 @@ class Restaurant {
 
 List<Restaurant> restaurants = [
   Restaurant(
-    id: 1,
+    id: '1',
     name: 'Stan Mama Tika',
     rating: 4.5,
     categories: ['Nasi Goreng', 'Mie Goreng'],
     menus: [
       Menu(
-        id: 1,
+        id: '1',
         name: 'Nasi Goreng Spesial',
         description: 'Nasi goreng dengan telur dan ayam',
         price: 15000,
         photo: 'lib/assets/images/burgers/beef_burger.webp',
-        stanId: 1,
+        stanId: "1",
+        isDiskon: false,
+        jenisMenu: 'makanan'
       ),
       Menu(
-        id: 2,
+        id: '2',
         name: 'Mie Goreng Spesial',
         description: 'Mie goreng dengan telur dan ayam',
         price: 15000,
         photo: 'lib/assets/images/burgers/beef_burger.webp',
-        stanId: 1,
-      ),
-    ],
-  ),
-  Restaurant(
-    id: 2,
-    name: 'Stan Pak Joko',
-    rating: 4.7,
-    categories: ['Soto', 'Bakso'],
-    menus: [
-      Menu(
-        id: 3,
-        name: 'Soto Ayam',
-        description: 'Soto ayam dengan nasi',
-        price: 12000,
-        photo: 'lib/assets/images/burgers/beef_burger.webp',
-        stanId: 2,
-      ),
-      Menu(
-        id: 4,
-        name: 'Bakso',
-        description: 'Bakso dengan mie',
-        price: 10000,
-        photo: 'lib/assets/images/burgers/beef_burger.webp',
-        stanId: 2,
+        stanId: "1",
+        isDiskon: false,
+        jenisMenu: 'minuman',
       ),
     ],
   ),

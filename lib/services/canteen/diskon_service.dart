@@ -7,34 +7,48 @@ import 'package:ukk_kantin/models/stan/create_menu.dart';
 class DiskonService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<List<Diskon>> getUserDiscounts() async {
-    var uid = FirebaseAuth.instance.currentUser?.uid;
+ Future<List<Diskon>> getUserDiscounts() async {
+  final uid = FirebaseAuth.instance.currentUser ?.uid;
+  if (uid == null) return [];
 
-    List<Diskon> discounts = [];
+  List<Diskon> discounts = [];
 
-    // First, get all the menu documents for the user
-    QuerySnapshot menuSnapshot =
-        await _firestore.collection('stan').doc(uid).collection('menu').get();
+  QuerySnapshot menuSnapshot = await _firestore
+      .collection('stan')
+      .doc(uid)
+      .collection('menu')
+      .get();
 
-    // Iterate through each menu document
-    for (var menuDoc in menuSnapshot.docs) {
-      // Safely access the 'nama' field
-      String menuName =
-          (menuDoc.data() as Map<String, dynamic>?)?['nama'] ?? '';
+  for (var menuDoc in menuSnapshot.docs) {
+    String menuId = menuDoc.id;
+    String menuName = (menuDoc.data() as Map<String, dynamic>?)?['nama'] ?? '';
 
-      // For each menu document, get the discounts
-      QuerySnapshot discountSnapshot = await menuDoc.reference
-          .collection('diskon') // Collection containing discounts for this menu
-          .get();
+    QuerySnapshot discountSnapshot = await menuDoc.reference.collection('diskon').get();
 
-      // Add each discount to the list
-      for (var discountDoc in discountSnapshot.docs) {
-        discounts.add(Diskon.fromMap(
-            discountDoc.data() as Map<String, dynamic>, discountDoc.id));
-      }
+    for (var discountDoc in discountSnapshot.docs) {
+      discounts.add(Diskon.fromMap(
+        discountDoc.data() as Map<String, dynamic>,
+        discountDoc.id,
+        menuName,
+        menuId,
+      ));
     }
+  }
 
-    return discounts;
+  return discounts;
+}
+
+  Future<void> deleteDiscount(String menuId, String discountId) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    await _firestore
+        .collection('stan')
+        .doc(uid)
+        .collection('menu')
+        .doc(menuId)
+        .collection('diskon')
+        .doc(discountId)
+        .delete();
   }
 
   // Method to check if a menu has an active discount

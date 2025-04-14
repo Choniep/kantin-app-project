@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:ukk_kantin/models/discount.dart';
-import 'package:ukk_kantin/services/canteen/diskon_sevice.dart';
+import 'package:ukk_kantin/services/canteen/diskon_service.dart';
 import 'package:ukk_kantin/services/canteen/menu_service.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 import 'package:ukk_kantin/pages/stan/edit_product_page.dart';
