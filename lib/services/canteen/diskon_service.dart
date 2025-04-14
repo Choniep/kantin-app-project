@@ -57,7 +57,7 @@ class DiskonService {
     DateTime now = DateTime.now();
     menu.isDiskon = diskons.any((diskon) {
       DateTime startDate = diskon.tanggalMulai;
-      DateTime endDate = diskon.tanggalBerakhir;
+      DateTime endDate = diskon.tanggalSelesai;
       bool isActive = now.isAfter(startDate) && now.isBefore(endDate);
       print(
           'Checking diskon for ${menu.nama}: $isActive (now: $now, start: $startDate, end: $endDate)');
