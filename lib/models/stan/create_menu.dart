@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class CreateMenu {
   final String? id;
-  final String namaMakanan;
+  final String nama;
   final double harga;
   final JenisMenu jenis;
   final String? foto;
@@ -10,7 +12,7 @@ class CreateMenu {
 
   CreateMenu({
     this.id,
-    required this.namaMakanan,
+    required this.nama,
     required this.harga,
     required this.jenis,
     this.foto,
@@ -23,7 +25,7 @@ class CreateMenu {
   factory CreateMenu.fromMap(Map<String, dynamic> map, String documentId) {
     return CreateMenu(
       id: documentId,
-      namaMakanan: map['nama_makanan'] ?? '',
+      nama: map['nama'] ?? '',
       harga: (map['harga'] ?? 0.0).toDouble(),
       jenis: _stringToJenisMenu(map['jenis']),
       foto: map['foto'],
@@ -35,7 +37,7 @@ class CreateMenu {
 
   Map<String, dynamic> toMap() {
     return {
-      'nama_makanan': namaMakanan,
+      'nama': nama,
       'harga': harga,
       'jenis': jenisMenuToString(jenis),
       'foto': foto,
@@ -62,16 +64,6 @@ class CreateMenu {
   }
 }
 
-// Diskon model
-class Diskon {
-  DateTime tanggalMulai;
-  DateTime tanggalSelesai;
-
-  Diskon({
-    required this.tanggalMulai,
-    required this.tanggalSelesai,
-  });
-}
 
 // Enum for menu types
 enum JenisMenu {

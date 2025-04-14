@@ -6,7 +6,8 @@ class Diskon {
   final DateTime tanggalMulai; // Start date of the discount
   final DateTime tanggalBerakhir; // End date of the discount
   final int diskon; // Discount value (percentage or amount)
-  final String diskonType; // Type of discount ('persen' or 'rupiah')
+  final String diskonType;
+  final String? menuName;
 
   Diskon({
     required this.id,
@@ -15,6 +16,7 @@ class Diskon {
     required this.tanggalBerakhir,
     required this.diskon,
     required this.diskonType,
+    this.menuName,
   });
 
   // Factory method to create a Diskon from a map
@@ -26,6 +28,7 @@ class Diskon {
       tanggalBerakhir: (map['tanggal_selesai'] as Timestamp).toDate(),
       diskon: map['diskon'] ?? 0,
       diskonType: map['diskon_type'] ?? '',
+      menuName: map['nama'] ?? '',
     );
   }
 }

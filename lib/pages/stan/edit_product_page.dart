@@ -33,7 +33,7 @@ class _EditProductPageState extends State<EditProductPage> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.menu.namaMakanan;
+    _nameController.text = widget.menu.nama;
     _priceController.text = widget.menu.harga.toString();
     _descriptionController.text = widget.menu.deskripsi ?? '';
     _selectedCategory =

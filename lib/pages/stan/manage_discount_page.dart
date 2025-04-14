@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
-import 'package:ukk_kantin/models/discount.dart';
+import 'package:ukk_kantin/models/discount.dart'; // Ensure this is the correct import
 import 'package:ukk_kantin/pages/stan/add_discount_page.dart';
 import 'package:ukk_kantin/services/canteen/diskon_sevice.dart';
 
@@ -12,20 +13,29 @@ class ManageDiscountPage extends StatefulWidget {
 }
 
 class _ManageDiscountPageState extends State<ManageDiscountPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final DiskonService _diskonService = DiskonService();
   late Future<List<Diskon>> _discounts;
 
   @override
   void initState() {
     super.initState();
-    // Replace 'userId' with the actual user ID
-    _discounts = _diskonService.getUserDiscounts('userId'); // Fetch discounts for the user
+    _refreshDiscounts(); // Load discounts when the page is initialized
   }
 
   Future<void> _refreshDiscounts() async {
-    setState(() {
-      _discounts = _discountService.getUserDiscounts('userId'); // Refresh the discounts
-    });
+
+    // Fetch the discounts for the user
+    _discounts = _diskonService.getUserDiscounts();
+
+    // Wait for the Future to complete and check if the discounts are empty
+    List<Diskon> discountsList = await _discounts;
+    if (discountsList.isEmpty) {
+      print('No discounts found');
+    } else {
+      print(
+          'Discounts retrieved successfully: ${discountsList.length} discounts found.');
+    }
   }
 
   @override
@@ -38,7 +48,8 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
             icon: const Icon(IconsaxPlusBold.add),
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const AddDiscountPage()),
+                MaterialPageRoute(
+                    builder: (context) => const AddDiscountPage()),
               );
             },
           ),
@@ -50,7 +61,8 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error loading discounts: ${snapshot.error}'));
+            return Center(
+                child: Text('Error loading discounts: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No discounts available'));
           }
@@ -75,7 +87,8 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          discount.namaDiskon,
+                          discount
+                              .namaDiskon, // Ensure this field exists in your Diskon model
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -83,7 +96,7 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Valid from: ${discount.tanggalMulai} to ${discount.tanggalBerakhir}',
+                          'Valid from: ${discount.tanggalMulai} to ${discount.tanggalBerakhir}', // Ensure these fields exist
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -91,7 +104,7 @@ class _ManageDiscountPageState extends State<ManageDiscountPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Discount: ${discount.diskon} ${discount.diskonType}',
+                          'Discount: ${discount.diskon} ${discount.diskonType}', // Ensure these fields exist
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],

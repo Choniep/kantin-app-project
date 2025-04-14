@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
+import 'package:ukk_kantin/models/discount.dart';
 import 'package:ukk_kantin/services/canteen/diskon_sevice.dart';
 import 'package:ukk_kantin/services/canteen/menu_service.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
@@ -122,7 +123,7 @@ class _ManageProductPageState extends State<ManageProductPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                menu.namaMakanan,
+                                menu.nama,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

@@ -186,7 +186,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
                             return DropdownMenuItem<CreateMenu>(
                               value: menu,
                               child: Text(
-                                  '${menu.namaMakanan} - Rp ${menu.harga}'),
+                                  '${menu.nama} - Rp ${menu.harga}'),
                             );
                           }).toList(),
                         ),

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart';
+import 'package:ukk_kantin/models/discount.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 
 class MenuService {
@@ -48,7 +49,7 @@ class MenuService {
           _firestore.collection("stan").doc(uid).collection("menu");
 
       final menu = CreateMenu(
-        namaMakanan: namaMakanan,
+        nama: namaMakanan,
         harga: harga,
         jenis: jenis,
         foto: foto,
@@ -86,7 +87,7 @@ class MenuService {
   }) async {
     try {
       final Map<String, dynamic> data = {
-        'nama_makanan': namaMakanan,
+        'nama': namaMakanan,
         'harga': harga,
         'jenis': CreateMenu.jenisMenuToString(jenis),
         'foto': foto,
@@ -180,7 +181,7 @@ class MenuService {
           .map((doc) =>
               CreateMenu.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .where((menu) =>
-              menu.namaMakanan.toLowerCase().contains(keyword.toLowerCase()))
+              menu.nama.toLowerCase().contains(keyword.toLowerCase()))
           .toList();
     } catch (e) {
       debugPrint('Error searching menus: $e');
@@ -235,10 +236,18 @@ class MenuService {
 
     for (var doc in snapshot.docs) {
       DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
-      DateTime tanggalBerakhir =
-          (doc['tanggal_selesai'] as Timestamp).toDate();
+      DateTime tanggalBerakhir = (doc['tanggal_selesai'] as Timestamp).toDate();
+
       diskons.add(
-          Diskon(tanggalMulai: tanggalMulai, tanggalSelesai: tanggalBerakhir));
+        Diskon(
+          tanggalMulai: tanggalMulai,
+          tanggalBerakhir: tanggalBerakhir,
+          diskon: doc['diskon'],
+          diskonType: doc['diskon_type'],
+          id: uid,
+          namaDiskon: doc['nama_diskon'],
+        ),
+      );
     }
 
     return diskons;
