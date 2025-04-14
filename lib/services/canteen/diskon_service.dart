@@ -7,39 +7,39 @@ import 'package:ukk_kantin/models/stan/create_menu.dart';
 class DiskonService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
- Future<List<Diskon>> getUserDiscounts() async {
-  final uid = FirebaseAuth.instance.currentUser ?.uid;
-  if (uid == null) return [];
+  Future<List<Diskon>> getUserDiscounts() async {
+    final uid = FirebaseAuth.instance.currentUser ?.uid;
+    if (uid == null) return [];
 
-  List<Diskon> discounts = [];
+    List<Diskon> discounts = [];
 
-  QuerySnapshot menuSnapshot = await _firestore
-      .collection('stan')
-      .doc(uid)
-      .collection('menu')
-      .get();
+    QuerySnapshot menuSnapshot = await _firestore
+        .collection('stan')
+        .doc(uid)
+        .collection('menu')
+        .get();
 
-  for (var menuDoc in menuSnapshot.docs) {
-    String menuId = menuDoc.id;
-    String menuName = (menuDoc.data() as Map<String, dynamic>?)?['nama'] ?? '';
+    for (var menuDoc in menuSnapshot.docs) {
+      String menuId = menuDoc.id;
+      String menuName = (menuDoc.data() as Map<String, dynamic>?)?['nama'] ?? '';
 
-    QuerySnapshot discountSnapshot = await menuDoc.reference.collection('diskon').get();
+      QuerySnapshot discountSnapshot = await menuDoc.reference.collection('diskon').get();
 
-    for (var discountDoc in discountSnapshot.docs) {
-      discounts.add(Diskon.fromMap(
-        discountDoc.data() as Map<String, dynamic>,
-        discountDoc.id,
-        menuName,
-        menuId,
-      ));
+      for (var discountDoc in discountSnapshot.docs) {
+        discounts.add(Diskon.fromMap(
+          discountDoc.data() as Map<String, dynamic>,
+          discountDoc.id,
+          menuName,
+          menuId,
+        ));
+      }
     }
+
+    return discounts;
   }
 
-  return discounts;
-}
-
   Future<void> deleteDiscount(String menuId, String discountId) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = FirebaseAuth.instance.currentUser ?.uid;
 
     await _firestore
         .collection('stan')
@@ -70,5 +70,40 @@ class DiskonService {
     for (var menu in menus) {
       checkDiskon(menu, diskons);
     }
+  }
+
+  // New method to get active discounts
+  Future<List<Diskon>> getActiveDiscount() async {
+    final uid = FirebaseAuth.instance.currentUser ?.uid;
+    if (uid == null) return [];
+
+    List<Diskon> activeDiscounts = [];
+    DateTime now = DateTime.now();
+
+    QuerySnapshot menuSnapshot = await _firestore
+        .collection('stan')
+        .doc(uid)
+        .collection('menu')
+        .get();
+
+    for (var menuDoc in menuSnapshot.docs) {
+      QuerySnapshot discountSnapshot = await menuDoc.reference.collection('diskon').get();
+
+      for (var discountDoc in discountSnapshot.docs) {
+        Diskon discount = Diskon.fromMap(
+          discountDoc.data() as Map<String, dynamic>,
+          discountDoc.id,
+          (menuDoc.data() as Map<String, dynamic>)['nama'] ?? '',
+          menuDoc.id,
+        );
+
+        // Check if the discount is active
+        if (now.isAfter(discount.tanggalMulai) && now.isBefore(discount.tanggalSelesai)) {
+          activeDiscounts.add(discount);
+        }
+      }
+    }
+
+    return activeDiscounts;
   }
 }

@@ -10,6 +10,8 @@ class Menu {
   bool isDiskon;
   final String stanId;
   final String jenisMenu;
+  final double? diskon;
+  final String? jenisDiskon;
 
   Menu({
     required this.id,
@@ -20,6 +22,8 @@ class Menu {
     required this.stanId,
     this.isDiskon = false, // Default value for isDiskon
     required this.jenisMenu,
+    this.diskon,
+    this.jenisDiskon,
   });
 
   // Factory constructor to create a Menu instance from a map
@@ -32,9 +36,13 @@ class Menu {
       photo: data['foto'] ?? '', // Default to empty string if no photo
       stanId: data['id_stan'] ?? "Unknown ID", // Default to 0 if no stanId
       isDiskon: data['isDiskon'] ?? false, // Default to false if not specified
-      jenisMenu: data['jenis'] ?? 'Unknown', // Default to 'Unknown' if not specified
+      jenisMenu:
+          data['jenis'] ?? 'Unknown', // Default to 'Unknown' if not specified,
+      jenisDiskon: data['diskon_type'] ?? 'Unknown',
     );
   }
+
+  get discountType => null;
 
   Map<String, dynamic> toMap() {
     return {

@@ -28,6 +28,15 @@ class MenuPage extends StatelessWidget {
         itemCount: restaurant.menus.length,
         itemBuilder: (context, index) {
           final menu = restaurant.menus[index];
+
+          // Calculate the discounted price if applicable
+          double? discountedPrice;
+          if (menu.isDiskon) {
+            discountedPrice = menu.jenisDiskon == 'persen'
+                ? menu.price * (1 - (menu.diskon! / 100))
+                : menu.price - (menu.diskon!);
+          }
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Card(
@@ -53,8 +62,7 @@ class MenuPage extends StatelessWidget {
                         bottomLeft: Radius.circular(12),
                       ),
                       child: Image.asset(
-                        menu.photo ??
-                            'lib/assets/images/salads/beef_salad.jpeg',
+                        menu.photo,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
@@ -95,6 +103,7 @@ class MenuPage extends StatelessWidget {
                             const SizedBox(height: 8), // Add some space
                             // Price display
                             if (menu.isDiskon) ...[
+                              // Show original price with strikethrough
                               Text(
                                 'Rp. ${menu.price.toStringAsFixed(2)}',
                                 style: TextStyle(
@@ -104,8 +113,9 @@ class MenuPage extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 4), // Space between prices
+                              // Show discounted price
                               Text(
-                                'Rp. ${menu.price.toStringAsFixed(2)}', // Placeholder for discounted price
+                                'Rp. ${discountedPrice!.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.bold,
