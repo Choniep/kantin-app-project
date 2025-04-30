@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ukk_kantin/pages/siswa/home_page_siswa.dart';
 import 'package:ukk_kantin/pages/stan/home_page_stan.dart';
 import 'package:ukk_kantin/pages/stan/order_list_page.dart';
 import 'package:ukk_kantin/pages/stan/profil_page.dart';
