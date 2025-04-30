@@ -21,7 +21,7 @@ class ChoiceOptions extends StatefulWidget {
 class _ChoiceOptionsState extends State<ChoiceOptions> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
