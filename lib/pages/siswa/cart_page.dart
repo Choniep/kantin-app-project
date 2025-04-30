@@ -1,146 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ukk_kantin/models/siswa/cart_item.dart';
 import 'package:ukk_kantin/models/siswa/cart.dart';
+import 'package:ukk_kantin/services/Siswa/cart_service.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
+    final cartItems = cart.items;
+    final totalPrice = cart.totalPrice;
+    final cartService = CartService(); // Create instance of CartService
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cart'),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: () => cart.clearCart(),
+            onPressed: () {
+              cart.clear();
+            },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: cart.items.length,
-              itemBuilder: (context, index) {
-                final item = cart.items[index];
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        // Thumbnail image
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            item.menu.photo,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        // Item details
-                        Expanded(
-                          child: Column(
+      body: cartItems.isEmpty
+          ? const Center(child: Text('Your cart is empty'))
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cartItems.length,
+                    itemBuilder: (context, index) {
+                      final item = cartItems[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                item.menu.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Rp ${item.totalPrice.toStringAsFixed(0)}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              // Quantity selector moved here and made smaller
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                height: 32,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      width: 28,
-                                      height: 28,
-                                      child: IconButton(
-                                        padding: EdgeInsets.zero,
-                                        icon:
-                                            const Icon(Icons.remove, size: 16),
-                                        onPressed: () =>
-                                            cart.decrementItem(int.parse(item.menu.id)),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 24,
-                                      child: Text(
-                                        '${item.quantity}',
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 28,
-                                      height: 28,
-                                      child: IconButton(
-                                        padding: EdgeInsets.zero,
-                                        icon: const Icon(Icons.add, size: 16),
-                                        onPressed: () =>
-                                            cart.incrementItem(int.parse(item.menu.id)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              // Item details here...
                             ],
                           ),
                         ),
-                        // Delete button
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline,
-                              color: Colors.red),
-                          onPressed: () => cart.removeItem(item),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Text('Total: Rp ${cart.totalPrice.toStringAsFixed(0)}'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: Implement checkout functionality
-                  },
-                  child: const Text('Checkout'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Total: Rp ${totalPrice.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            await cartService.checkout(cartItems);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Order placed successfully!')),
+                            );
+                            cart.clear(); // Clear the cart after checkout
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        },
+                        child: const Text('Checkout'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

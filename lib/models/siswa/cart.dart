@@ -7,6 +7,7 @@ class Cart with ChangeNotifier {
 
   List<CartItem> get items => _items;
   int? get currentStanId => _currentStanId;
+  double get totalPrice => totalPrice;
 
   void addItem(CartItem item) {
     // Enforce products from same booth (stan)
@@ -18,51 +19,44 @@ class Cart with ChangeNotifier {
     // Check if item already exists, then update quantity; otherwise add
     int index = _items.indexWhere((ci) => ci.menu.id == item.menu.id);
     if (index != -1) {
+      // If item already exists, update its quantity
       _items[index].quantity += item.quantity;
     } else {
+      // If it's a new item, add it to the cart
       _items.add(item);
     }
+
+    // Notify listeners to update UI
     notifyListeners();
   }
 
-  void removeItem(CartItem item) {
-    _items.remove(item);
+  /// Removes item by [menuId]
+  void removeCartItem(String menuId) {
+    _items.removeWhere((item) => item.menu.id == menuId);
     if (_items.isEmpty) {
       _currentStanId = null;
     }
     notifyListeners();
   }
 
-  void clearCart() {
-    _items.clear();
-    _currentStanId = null;
-    notifyListeners();
-  }
-
-  double get totalPrice {
-    return _items.fold(0.0, (sum, item) => sum + item.totalPrice);
-  }
-
-  // New: Increment item quantity by 1
-  void incrementItem(int menuId) {
-    int index = _items.indexWhere((ci) => ci.menu.id == menuId);
+  /// Updates the quantity of an item
+  void updateCartItemQuantity(String menuId, int newQuantity) {
+    int index = _items.indexWhere((item) => item.menu.id == menuId);
     if (index != -1) {
-      _items[index].quantity += 1;
-      notifyListeners();
-    }
-  }
-
-  // New: Decrement item quantity by 1; remove if quantity becomes 0
-  void decrementItem(int menuId) {
-    int index = _items.indexWhere((ci) => ci.menu.id == menuId);
-    if (index != -1) {
-      if (_items[index].quantity > 1) {
-        _items[index].quantity -= 1;
+      if (newQuantity > 0) {
+        _items[index].quantity = newQuantity;
       } else {
         _items.removeAt(index);
         if (_items.isEmpty) _currentStanId = null;
       }
       notifyListeners();
     }
+  }
+
+  /// Clears the cart entirely
+  void clear() {
+    _items.clear();
+    _currentStanId = null;
+    notifyListeners();
   }
 }
