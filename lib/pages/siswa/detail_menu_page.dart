@@ -6,7 +6,7 @@ import 'package:ukk_kantin/models/siswa/cart.dart';
 
 class DetailMenuPage extends StatefulWidget {
   final Menu menu;
-  const DetailMenuPage({Key? key, required this.menu}) : super(key: key);
+  const DetailMenuPage({super.key, required this.menu});
 
   @override
   _DetailMenuPageState createState() => _DetailMenuPageState();
@@ -150,8 +150,36 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
             ),
             child: ElevatedButton(
               onPressed: () {
+                // Calculate discounted price based on discount type
+                double discountedPrice = widget.menu.price;
+                final discountType = widget.menu.jenisDiskon?.toLowerCase() ?? '';
+                final discountValue = widget.menu.diskon ?? 0;
+
+                if (widget.menu.isDiskon && discountValue > 0) {
+                  if (discountType == 'persen') {
+                    discountedPrice = widget.menu.price * (1 - (discountValue / 100));
+                  } else if (discountType == 'rupiah') {
+                    discountedPrice = widget.menu.price - discountValue;
+                  }
+                  if (discountedPrice < 0) discountedPrice = 0;
+                }
+
+                // Create a new Menu object with discounted price for cart
+                final discountedMenu = Menu(
+                  id: widget.menu.id,
+                  name: widget.menu.name,
+                  description: widget.menu.description,
+                  price: discountedPrice,
+                  photo: widget.menu.photo,
+                  stanId: widget.menu.stanId,
+                  isDiskon: widget.menu.isDiskon,
+                  jenisMenu: widget.menu.jenisMenu,
+                  diskon: widget.menu.diskon ?? 0,
+                  jenisDiskon: widget.menu.jenisDiskon,
+                );
+
                 Provider.of<Cart>(context, listen: false).addItem(
-                  CartItem(menu: widget.menu, quantity: _quantity),
+                  CartItem(menu: discountedMenu, quantity: _quantity),
                 );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Added to cart')),
