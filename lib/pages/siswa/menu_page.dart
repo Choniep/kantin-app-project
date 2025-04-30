@@ -62,7 +62,7 @@ class MenuPage extends StatelessWidget {
                         bottomLeft: Radius.circular(12),
                       ),
                       child: Image.asset(
-                        menu.photo,
+                        menu.photo ?? '',
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
@@ -84,7 +84,7 @@ class MenuPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              menu.name,
+                              menu.name ?? 'Unknown',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
