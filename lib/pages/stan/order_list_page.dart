@@ -202,7 +202,7 @@ class _OrderListPageState extends State<OrderListPage> {
                 return ListTile(
                   title: Text('Order #${1000 + index}'),
                   subtitle:
-                      Text('${selectedMonth ?? 'Any Month'} ${selectedYear}'),
+                      Text('${selectedMonth ?? 'Any Month'} $selectedYear'),
                   trailing: Text('\$${(index + 1) * 10}.00'),
                 );
               },
@@ -263,7 +263,7 @@ class _OrderListPageState extends State<OrderListPage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 300,
           child: Column(
             children: [
