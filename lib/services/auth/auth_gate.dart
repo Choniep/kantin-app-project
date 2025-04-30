@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ukk_kantin/pages/siswa/main_screen_siswa_page.dart';
-import 'package:ukk_kantin/pages/stan/main_screen_page.dart';
 import 'package:ukk_kantin/pages/userlogin/choice_page.dart';
 import 'package:ukk_kantin/services/auth/auth_service.dart';
 
