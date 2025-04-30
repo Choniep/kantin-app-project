@@ -28,8 +28,8 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
   final List<String> years = ['2023', '2024', '2025'];
 
   void logout() {
-    final _authService = AuthService();
-    _authService.signOut();
+    final authService = AuthService();
+    authService.signOut();
   }
 
   void clearFilters() {
