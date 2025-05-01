@@ -12,12 +12,12 @@ class HomePageSiswa extends StatelessWidget {
     final QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('stan').get();
     return Future.wait(snapshot.docs.map((doc) async {
-      final data = doc.data() as Map<String, dynamic>;
+      final data = doc.data() as Map<String, dynamic>? ?? {};
       final menus = await _fetchMenus(doc.id);
       return Restaurant(
         id: doc.id,
         name: data['nama_stan'] ?? 'Unknown Restaurant',
-        menus: menus,
+        menus: menus.isNotEmpty ? menus : [],
       );
     }));
   }
@@ -28,9 +28,14 @@ class HomePageSiswa extends StatelessWidget {
         .doc(restaurantId)
         .collection('menu')
         .get();
+    if (menuSnapshot.docs.isEmpty) {
+      return [];
+    }
     return menuSnapshot.docs
-        .map((menuDoc) =>
-            Menu.fromMap(menuDoc.data() as Map<String, dynamic>, menuDoc.id))
+        .map((menuDoc) {
+          final data = menuDoc.data() as Map<String, dynamic>? ?? {};
+          return Menu.fromMap(data, menuDoc.id);
+        })
         .toList();
   }
 
@@ -56,7 +61,15 @@ class HomePageSiswa extends StatelessWidget {
               ),
             ),
           ],
-        ),  
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(IconsaxPlusBold.shopping_cart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/cart');
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<Restaurant>>(
         future: _fetchRestaurants(),
@@ -165,6 +178,7 @@ class HomePageSiswa extends StatelessWidget {
   }
 
   Widget _buildRestaurantCard(BuildContext context, Restaurant restaurant) {
+    print('Navigating to MenuPage with restaurant: id=${restaurant.id}, name=${restaurant.name}, menus count=${restaurant.menus.length}');
     return GestureDetector(
       onTap: () {
         Navigator.push(
