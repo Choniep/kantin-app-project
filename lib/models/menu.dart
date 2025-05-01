@@ -20,29 +20,26 @@ class Menu {
     required this.price,
     required this.photo,
     required this.stanId,
-    this.isDiskon = false, // Default value for isDiskon
+    this.isDiskon = false,
     required this.jenisMenu,
     this.diskon,
     this.jenisDiskon,
   });
 
-  // Factory constructor to create a Menu instance from a map
   factory Menu.fromMap(Map<String, dynamic> data, String documentId) {
     return Menu(
       id: documentId,
       name: data['nama'] ?? 'Unknown Menu',
       description: data['deskripsi'],
-      price: (data['harga'] ?? 0).toDouble(), // Ensure price is a double
-      photo: data['foto'] ?? '', // Default to empty string if no photo
-      stanId: data['id_stan'] ?? "Unknown ID", // Default to 0 if no stanId
-      isDiskon: data['isDiskon'] ?? false, // Default to false if not specified
-      jenisMenu:
-          data['jenis'] ?? 'Unknown', // Default to 'Unknown' if not specified,
-      jenisDiskon: data['diskon_type'] ?? 'Unknown',
+      price: (data['harga'] ?? 0).toDouble(),
+      photo: data['foto'] ?? '',
+      stanId: data['id_stan'] ?? 'Unknown Stan',
+      isDiskon: data['isDiskon'] ?? false,
+      jenisMenu: data['jenis'] ?? 'Unknown',
+      diskon: data['diskon']?.toDouble(),
+      jenisDiskon: data['diskon_type'],
     );
   }
-
-  get discountType => null;
 
   Map<String, dynamic> toMap() {
     return {
@@ -54,6 +51,8 @@ class Menu {
       'photo': photo,
       'stanId': stanId,
       'isDiskon': isDiskon,
+      'diskon': diskon,
+      'diskon_type': jenisDiskon,
     };
   }
 }
