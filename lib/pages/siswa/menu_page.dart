@@ -13,14 +13,6 @@ class MenuPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(restaurant.name),
-        actions: [
-          IconButton(
-            icon: const Icon(IconsaxPlusBold.shopping_cart),
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart');
-            },
-          ),
-        ],
         elevation: 0,
       ),
       body: ListView.builder(
@@ -31,7 +23,9 @@ class MenuPage extends StatelessWidget {
 
           // Calculate the discounted price if applicable
           double? discountedPrice;
-          if (menu.isDiskon) {
+          if (menu.isDiskon &&
+              menu.diskon != null &&
+              menu.jenisDiskon != null) {
             discountedPrice = menu.jenisDiskon == 'persen'
                 ? menu.price * (1 - (menu.diskon! / 100))
                 : menu.price - (menu.diskon!);
@@ -61,21 +55,29 @@ class MenuPage extends StatelessWidget {
                         topLeft: Radius.circular(12),
                         bottomLeft: Radius.circular(12),
                       ),
-                      child: Image.asset(
-                        menu.photo ?? '',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 100,
-                            height: 100,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.restaurant,
-                                color: Colors.grey),
-                          );
-                        },
-                      ),
+                      child: (menu.photo != null && menu.photo.isNotEmpty)
+                          ? Image.asset(
+                              menu.photo,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 100,
+                                  height: 100,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.restaurant,
+                                      color: Colors.grey),
+                                );
+                              },
+                            )
+                          : Container(
+                              width: 100,
+                              height: 100,
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.restaurant,
+                                  color: Colors.grey),
+                            ),
                     ),
                     Expanded(
                       child: Padding(
@@ -115,15 +117,14 @@ class MenuPage extends StatelessWidget {
                               const SizedBox(height: 4), // Space between prices
                               // Show discounted price
                               Text(
-                                'Rp. ${discountedPrice!.toStringAsFixed(2)}',
+                                'Rp. ${discountedPrice?.toStringAsFixed(2) ?? '0.00'}',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ] else ...[
-                              Text(
-                                'Rp. ${menu.price.toStringAsFixed(2)}',
+                              Text('Rp. ${discountedPrice?.toStringAsFixed(2) ?? '0.00'}',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.bold,
