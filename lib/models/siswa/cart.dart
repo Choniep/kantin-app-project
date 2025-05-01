@@ -3,11 +3,17 @@ import 'cart_item.dart';
 
 class Cart with ChangeNotifier {
   List<CartItem> _items = [];
-  int? _currentStanId;
+  String? _currentStanId;
 
   List<CartItem> get items => _items;
-  int? get currentStanId => _currentStanId;
-  double get totalPrice => totalPrice;
+  String? get currentStanId => _currentStanId;
+  double get totalPrice {
+    double total = 0;
+    for (var item in _items) {
+      total += item.totalPrice;
+    }
+    return total;
+  }
 
   void addItem(CartItem item) {
     // Enforce products from same booth (stan)
@@ -15,7 +21,7 @@ class Cart with ChangeNotifier {
       // Optionally handle error (e.g., show warning)
       return;
     }
-    _currentStanId = int.parse(item.menu.stanId);
+    _currentStanId = item.menu.stanId;
     // Check if item already exists, then update quantity; otherwise add
     int index = _items.indexWhere((ci) => ci.menu.id == item.menu.id);
     if (index != -1) {
