@@ -7,7 +7,7 @@ import 'package:ukk_kantin/models/stan/create_menu.dart';
 import 'package:ukk_kantin/pages/stan/edit_product_page.dart';
 
 class ManageProductPage extends StatefulWidget {
-  const ManageProductPage({Key? key}) : super(key: key);
+  const ManageProductPage({super.key});
 
   @override
   _ManageProductPageState createState() => _ManageProductPageState();
