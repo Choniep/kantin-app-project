@@ -12,7 +12,7 @@ import 'package:ukk_kantin/services/canteen/menu_service.dart';
 class EditProductPage extends StatefulWidget {
   final CreateMenu menu;
 
-  const EditProductPage({Key? key, required this.menu}) : super(key: key);
+  const EditProductPage({super.key, required this.menu});
 
   @override
   State<EditProductPage> createState() => _EditProductPageState();
@@ -28,7 +28,7 @@ class _EditProductPageState extends State<EditProductPage> {
   final picker = ImagePicker();
 
   String _selectedCategory = 'Makanan'; // Default value
-  List<String> _categories = ['Makanan', 'Minuman'];
+  final List<String> _categories = ['Makanan', 'Minuman'];
 
   @override
   void initState() {

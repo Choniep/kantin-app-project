@@ -4,7 +4,7 @@ import 'package:ukk_kantin/services/canteen/menu_service.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 
 class AddDiscountPage extends StatefulWidget {
-  const AddDiscountPage({Key? key}) : super(key: key);
+  const AddDiscountPage({super.key});
 
   @override
   _AddDiscountPageState createState() => _AddDiscountPageState();
