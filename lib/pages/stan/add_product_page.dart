@@ -10,7 +10,7 @@ import 'package:ukk_kantin/models/stan/create_menu.dart';
 import 'package:ukk_kantin/services/canteen/menu_service.dart';
 
 class AddProductPage extends StatefulWidget {
-  const AddProductPage({Key? key}) : super(key: key);
+  const AddProductPage({super.key});
 
   @override
   State<AddProductPage> createState() => _AddMenuPageState();
@@ -26,7 +26,7 @@ class _AddMenuPageState extends State<AddProductPage> {
   final picker = ImagePicker();
 
   String _selectedCategory = 'Makanan'; // Default value
-  List<String> _categories = ['Makanan', 'Minuman'];
+  final List<String> _categories = ['Makanan', 'Minuman'];
 
   Future<String?> uploadImage(File image) async {
     try {
