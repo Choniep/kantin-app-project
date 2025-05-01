@@ -17,6 +17,9 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure that the menu ID is treated as a string
+    final menuId = widget.menu.id.toString();
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -164,9 +167,9 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                   if (discountedPrice < 0) discountedPrice = 0;
                 }
 
-                // Create a new Menu object with discounted price for cart
+                // Ensure that the menu ID is correctly passed as a string
                 final discountedMenu = Menu(
-                  id: widget.menu.id,
+                  id: menuId,
                   name: widget.menu.name,
                   description: widget.menu.description,
                   price: discountedPrice,
@@ -178,6 +181,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                   jenisDiskon: widget.menu.jenisDiskon,
                 );
 
+                // Add to the cart
                 Provider.of<Cart>(context, listen: false).addItem(
                   CartItem(menu: discountedMenu, quantity: _quantity),
                 );
