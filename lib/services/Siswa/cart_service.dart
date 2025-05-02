@@ -8,11 +8,7 @@ class CartService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   CollectionReference get _orderCollection {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) {
-      throw Exception('User not logged in');
-    }
-    return _firestore.collection('siswa').doc(uid).collection('order');
+    return _firestore.collection('orders');
   }
 
   CollectionReference get _cartCollection {
@@ -27,19 +23,17 @@ class CartService {
     final doc = _cartCollection.doc(cartItem.menu.id);
     final snapshot = await doc.get();
     if (snapshot.exists) {
-      // If item exists, update quantity
       final existingQuantity =
           (snapshot.data() as Map<String, dynamic>)['quantity'] ?? 0;
       await doc.update({
         'quantity': existingQuantity + cartItem.quantity,
       });
     } else {
-      // Add new item
       await doc.set({
         'menuId': cartItem.menu.id,
         'quantity': cartItem.quantity,
         'price': cartItem.menu.price,
-        'stanId': cartItem.menu.stanId,  // Save stanId
+        'stanId': cartItem.menu.stanId,
       });
     }
   }
@@ -65,10 +59,10 @@ class CartService {
         return CartItem(
           menu: Menu(
             id: data['menuId'],
-            name: '', // Name not stored here, can be fetched separately if needed
+            name: '',
             price: (data['price'] ?? 0).toDouble(),
             photo: '',
-            stanId: data['stanId'] ?? '', // Include stanId here
+            stanId: data['stanId'] ?? '',
             jenisMenu: '',
           ),
           quantity: data['quantity'] ?? 1,
@@ -87,20 +81,22 @@ class CartService {
       final userId = user.uid;
 
       // Create a new order document in the Firestore orders collection
-      DocumentReference orderRef = await _orderCollection.add({
-        'order_id': _generateOrderId(),
+      DocumentReference orderRef = _orderCollection.doc();
+      await orderRef.set({
+        'order_id': orderRef.id,
+        'uid': userId,
         'timestamp': FieldValue.serverTimestamp(),
         'totalPrice': cartItems.fold(
             0.0, (sum, item) => sum + (item.menu.price * item.quantity)),
+        'status': 'Sedang dimasak', // New status field with default value
       });
 
       // Add the menu items as sub-collection of this order
       for (var item in cartItems) {
-        await orderRef.collection('menu_items').add({
+        await orderRef.collection('menu_items').doc(item.menu.id).set({
           'menu_id': item.menu.id,
           'quantity': item.quantity,
-          'stan_id': item.menu.stanId, // Add stanId to each menu item
-          'status': 'pending', // Default status
+          'stan_id': item.menu.stanId,
         });
       }
 
@@ -113,8 +109,18 @@ class CartService {
     }
   }
 
-  // Helper function to generate order ID (can be customized as needed)
-  String _generateOrderId() {
-    return DateTime.now().millisecondsSinceEpoch.toString();
+  // New method to get orders for current user
+  Stream<List<Map<String, dynamic>>> getOrders() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      throw Exception('User not logged in');
+    }
+    return _orderCollection
+        .where('uid', isEqualTo: userId)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => {'id': doc.id, ...doc.data() as Map<String, dynamic>})
+            .toList());
   }
 }
