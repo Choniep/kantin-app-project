@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ukk_kantin/services/auth/auth_service.dart';
 
 class ProfilPageSiswa extends StatelessWidget {
   const ProfilPageSiswa({super.key});
@@ -9,6 +10,18 @@ class ProfilPageSiswa extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profil Siswa'),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              // Import AuthService and AppRoutes for this to work
+              final authService = AuthService();
+              await authService.signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/choice_page', (route) => false);
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(
