@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ukk_kantin/services/auth/auth_service.dart';
+import 'package:ukk_kantin/services/Siswa/cart_service.dart';
 
 class OrderSiswaPage extends StatefulWidget {
   const OrderSiswaPage({super.key});
@@ -27,11 +28,6 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
   ];
   final List<String> years = ['2023', '2024', '2025'];
 
-  void logout() {
-    final authService = AuthService();
-    authService.signOut();
-  }
-
   void clearFilters() {
     setState(() {
       selectedMonth = null;
@@ -45,10 +41,7 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
       appBar: AppBar(
         title: Text('Order Page'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: logout,
-          ),
+          // Removed logout button as per request
         ],
       ),
       body: Column(
@@ -145,7 +138,47 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
             ),
           ),
           Expanded(
-            child: Text('Order Page Customer'),
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: CartService().getOrders(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error loading orders'));
+                }
+                final orders = snapshot.data ?? [];
+                if (orders.isEmpty) {
+                  return Center(child: Text('No orders found'));
+                }
+                return ListView.builder(
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+                    final timestamp = order['timestamp'] as Timestamp?;
+                    final date = timestamp != null
+                        ? DateTime.fromMillisecondsSinceEpoch(
+                            timestamp.millisecondsSinceEpoch)
+                        : null;
+                    return Card(
+                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: ListTile(
+                        title: Text('Order ID: ${order['order_id'] ?? order['id']}'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (date != null)
+                              Text('Date: ${date.toLocal().toString().split(' ')[0]}'),
+                            Text('Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
+                            Text('Status: ${order['status'] ?? 'Unknown'}'),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
