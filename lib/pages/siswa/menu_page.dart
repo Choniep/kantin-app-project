@@ -14,6 +14,14 @@ class MenuPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(restaurant.name),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(IconsaxPlusBold.shopping_cart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/cart');
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

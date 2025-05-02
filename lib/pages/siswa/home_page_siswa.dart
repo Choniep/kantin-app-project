@@ -63,12 +63,7 @@ class HomePageSiswa extends StatelessWidget {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(IconsaxPlusBold.shopping_cart),
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart');
-            },
-          ),
+          // Removed cart icon from here as per request
         ],
       ),
       body: FutureBuilder<List<Restaurant>>(
