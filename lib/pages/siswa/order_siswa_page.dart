@@ -48,7 +48,8 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
       builder: (context) {
         final timestamp = order['timestamp'] as Timestamp?;
         final date = timestamp != null
-            ? DateTime.fromMillisecondsSinceEpoch(timestamp.millisecondsSinceEpoch)
+            ? DateTime.fromMillisecondsSinceEpoch(
+                timestamp.millisecondsSinceEpoch)
             : null;
         return AlertDialog(
           title: Text('Receipt for Order ${order['order_id'] ?? order['id']}'),
@@ -58,7 +59,8 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
             children: [
               if (date != null)
                 Text('Date: ${date.toLocal().toString().split(' ')[0]}'),
-              Text('Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
+              Text(
+                  'Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
               Text('Status: ${order['status'] ?? 'Unknown'}'),
               // Additional receipt details can be added here
             ],
@@ -174,7 +176,7 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(  
+            child: StreamBuilder<List<Map<String, dynamic>>>(
               stream: getFilteredOrders(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -198,30 +200,48 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
                         : null;
                     final status = order['status'] ?? 'Unknown';
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: ListTile(
-                        title: Text('Order ID: ${order['order_id'] ?? order['id']}'),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                'Order ID: ${order['order_id'] ?? order['id']}'),
+                            if (order['nama_stan'] != null)
+                              Text(
+                                'Stan: ${order['nama_stan']}',
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.grey),
+                              ),
+                          ],
+                        ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (date != null)
-                              Text('Date: ${date.toLocal().toString().split(' ')[0]}'),
-                            Text('Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
+                              Text(
+                                  'Date: ${date.toLocal().toString().split(' ')[0]}'),
+                            Text(
+                                'Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
                             Text('Status: $status'),
+                            const SizedBox(height: 8),
                             if (status == 'siap diambil')
                               ElevatedButton(
                                 onPressed: () async {
-                                  await updateOrderStatus(order['order_id'] ?? order['id'], 'selesai');
+                                  await updateOrderStatus(
+                                      order['order_id'] ?? order['id'],
+                                      'selesai');
                                   setState(() {});
                                 },
-                                child: const Text('ambil dan bayar'),
+                                child: const Text('Ambil dan Bayar'),
                               ),
                             if (status == 'selesai')
                               ElevatedButton(
                                 onPressed: () {
                                   showReceiptDialog(order);
                                 },
-                                child: const Text('lihat struk'),
+                                child: const Text('Lihat Struk'),
                               ),
                           ],
                         ),
@@ -239,18 +259,19 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
 
   Stream<List<Map<String, dynamic>>> getFilteredOrders() {
     final query = FirebaseFirestore.instance.collection('orders');
-    
+
     if (selectedMonth != null) {
       // Filter by month
       query.where('month', isEqualTo: selectedMonth);
     }
-    
+
     if (selectedYear != null) {
       // Filter by year
       query.where('year', isEqualTo: selectedYear);
     }
 
-    return query.snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
+    return query
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
   }
 }
