@@ -28,6 +28,15 @@ class MenuPage extends StatelessWidget {
         itemCount: restaurant.menus.length,
         itemBuilder: (context, index) {
           final menu = restaurant.menus[index];
+          // DEBUG PRINT
+          print('--- MENU ITEM [$index] ---');
+          print('Name: ${menu.name}');
+          print('Description: ${menu.description}');
+          print('Price: ${menu.price}');
+          print('Photo: ${menu.photo}');
+          print('isDiskon: ${menu.isDiskon}');
+          print('Diskon: ${menu.diskon}');
+          print('Jenis Diskon: ${menu.jenisDiskon}');
 
           // Calculate the discounted price if applicable
           double? discountedPrice;
@@ -132,7 +141,8 @@ class MenuPage extends StatelessWidget {
                                 ),
                               ),
                             ] else ...[
-                              Text('Rp. ${discountedPrice?.toStringAsFixed(2) ?? '0.00'}',
+                              Text(
+                                'Rp. ${menu.price.toStringAsFixed(2)}',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.bold,
