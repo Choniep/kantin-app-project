@@ -17,7 +17,6 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure that the menu ID is treated as a string
     final menuId = widget.menu.id.toString();
 
     return Scaffold(
@@ -37,7 +36,6 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Hero image
                   Stack(
                     children: [
                       Container(
@@ -70,42 +68,40 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Menu name
                         Text(
                           widget.menu.name,
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Rp ${widget.menu.price.toStringAsFixed(0)}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
                               ?.copyWith(
+                                color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.bold,
                               ),
                         ),
-                        const SizedBox(height: 8),
-                        // Price
-                        Text(
-                          'Rp ${widget.menu.price.toStringAsFixed(0)}',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Theme.of(context).primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
                         const SizedBox(height: 16),
-                        // Description
                         Text(
                           'Description',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          widget.menu.description ?? 'No description available',
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                          widget.menu.description ??
+                              'No description available',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 16),
                         Text('Quantity'),
@@ -137,7 +133,6 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
               ),
             ),
           ),
-          // Add to cart button
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -153,21 +148,22 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Calculate discounted price based on discount type
+                // Calculate discounted price
                 double discountedPrice = widget.menu.price;
-                final discountType = widget.menu.jenisDiskon?.toLowerCase() ?? '';
+                final discountType =
+                    widget.menu.jenisDiskon?.toLowerCase() ?? '';
                 final discountValue = widget.menu.diskon ?? 0;
 
                 if (widget.menu.isDiskon && discountValue > 0) {
                   if (discountType == 'persen') {
-                    discountedPrice = widget.menu.price * (1 - (discountValue / 100));
+                    discountedPrice = widget.menu.price *
+                        (1 - (discountValue / 100));
                   } else if (discountType == 'rupiah') {
                     discountedPrice = widget.menu.price - discountValue;
                   }
                   if (discountedPrice < 0) discountedPrice = 0;
                 }
 
-                // Ensure that the menu ID is correctly passed as a string
                 final discountedMenu = Menu(
                   id: menuId,
                   name: widget.menu.name,
@@ -181,13 +177,26 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                   jenisDiskon: widget.menu.jenisDiskon,
                 );
 
-                // Add to the cart
-                Provider.of<Cart>(context, listen: false).addItem(
+                final result = Provider.of<Cart>(context, listen: false).addItem(
                   CartItem(menu: discountedMenu, quantity: _quantity),
                 );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Added to cart')),
-                );
+
+                if (result) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('✅ Added to cart'),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'You can only order from one stan at a time.',
+                      ),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
