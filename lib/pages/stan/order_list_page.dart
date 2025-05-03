@@ -40,7 +40,7 @@ class _OrderListPageState extends State<OrderListPage> {
 
     QuerySnapshot snapshot = await _firestore
         .collection('orders')
-        .where('stan_id', isEqualTo: uid)
+        .where('stanId', isEqualTo: uid)
         .get();
 
     DateTime startDate;
