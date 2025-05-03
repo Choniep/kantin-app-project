@@ -33,7 +33,7 @@ class Menu {
       description: data['deskripsi'],
       price: (data['harga'] ?? 0).toDouble(),
       photo: data['foto'] ?? '',
-      stanId: data['id_stan'] ?? 'Unknown Stan',
+      stanId: data['stanId'] ?? 'Unknown Stan',
       isDiskon: data['isDiskon'] ?? false,
       jenisMenu: data['jenis'] ?? 'Unknown',
       diskon: data['diskon']?.toDouble(),
@@ -55,4 +55,14 @@ class Menu {
       'diskon_type': jenisDiskon,
     };
   }
+  
+  // Override equality operator to compare by ID
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Menu && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
