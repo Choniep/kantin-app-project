@@ -15,7 +15,6 @@ class ProfilPageSiswa extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // Import AuthService and AppRoutes for this to work
               final authService = AuthService();
               await authService.signOut();
               Navigator.pushNamedAndRemoveUntil(
