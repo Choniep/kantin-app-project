@@ -33,7 +33,7 @@ class CartService {
         'menuId': cartItem.menu.id,
         'quantity': cartItem.quantity,
         'price': cartItem.menu.price,
-        'stanId': cartItem.menu.stanId,
+        'stanId': cartItem.menu.stanId, // <-- camelCase
       });
     }
   }
@@ -62,7 +62,7 @@ class CartService {
             name: '',
             price: (data['price'] ?? 0).toDouble(),
             photo: '',
-            stanId: data['stanId'] ?? '',
+            stanId: data['stanId'] ?? '', // <-- camelCase
             jenisMenu: '',
           ),
           quantity: data['quantity'] ?? 1,
@@ -71,28 +71,45 @@ class CartService {
     });
   }
 
-  // Checkout function
   Future<void> checkout(List<CartItem> cartItems) async {
     try {
       final user = _auth.currentUser;
-      if (user == null) {
-        throw Exception('User not logged in');
-      }
+      if (user == null) throw Exception('User not logged in');
       final userId = user.uid;
 
-      // Create a new order document in the Firestore orders collection
-      DocumentReference orderRef = _orderCollection.doc();
+      final orderRef = _orderCollection.doc();
+      final boothId = cartItems.isNotEmpty ? cartItems.first.menu.stanId : null;
+
+      print('🚀 Checkout: writing stanId = $boothId');
+
+      // ✅ Fetch nama_stan from 'stan' collection
+      String? namaStan;
+      if (boothId != null && boothId.isNotEmpty) {
+        final stanDoc = await _firestore.collection('stan').doc(boothId).get();
+        if (stanDoc.exists) {
+          namaStan = stanDoc.data()?['nama_stan'] as String?;
+          print('✅ Fetched nama_stan: $namaStan');
+        } else {
+          print('⚠️ Stan document not found for ID: $boothId');
+        }
+      }
+
       await orderRef.set({
         'order_id': orderRef.id,
         'uid': userId,
         'timestamp': FieldValue.serverTimestamp(),
         'totalPrice': cartItems.fold(
-            0.0, (sum, item) => sum + (item.menu.price * item.quantity)),
+          0.0,
+          (sum, item) => sum + (item.menu.price * item.quantity),
+        ),
         'status': 'Sedang dimasak',
-        'stan_id': cartItems.isNotEmpty ? cartItems[0].menu.stanId : null,
+        'stanId': boothId,
+        'nama_stan': namaStan ?? 'Unknown Stan', // ✅ Added field
+        'month': DateTime.now().month,
+        'year': DateTime.now().year,
       });
 
-      // Add the menu items as sub-collection of this order
+      // Add the menu items as sub-collection
       for (var item in cartItems) {
         await orderRef.collection('menu_items').doc(item.menu.id).set({
           'menu_id': item.menu.id,
@@ -100,7 +117,7 @@ class CartService {
         });
       }
 
-      // Optionally, delete the cart items after order is placed
+      // Clear the cart
       for (var item in cartItems) {
         await _cartCollection.doc(item.menu.id).delete();
       }
