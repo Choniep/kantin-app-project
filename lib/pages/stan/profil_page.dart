@@ -6,10 +6,11 @@ import 'package:ukk_kantin/services/auth/auth_service.dart';
 class ProfilPage extends StatelessWidget {
   const ProfilPage({super.key});
 
-  void logout() {
+  Future<void> logout(BuildContext context) async {
     final authService = AuthService();
     authService.signOut();
-  }
+  Navigator.pushNamedAndRemoveUntil(context, '/choice_page', (route) => false);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class ProfilPage extends StatelessWidget {
                 title: 'Log Out',
                 icon: IconsaxPlusBold.logout,
                 onTap: () {
-                  logout();
+                  logout(context);
                 },
               ),
             ],
