@@ -16,16 +16,37 @@ class MenuService {
 
   // Mendapatkan semua menu
   Future<List<CreateMenu>> getAllMenus() async {
-    try {
-      final QuerySnapshot snapshot = await _menuCollection.get();
-      return snapshot.docs.map((doc) {
-        return CreateMenu.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      }).toList();
-    } catch (e) {
-      debugPrint('Error getting all menus: $e');
-      return [];
+  try {
+    final QuerySnapshot stanSnapshot =
+        await _firestore.collection('stan').get();
+
+    List<CreateMenu> allMenus = [];
+
+    for (var stanDoc in stanSnapshot.docs) {
+      String stanId = stanDoc.id;
+      final QuerySnapshot menuSnapshot = await _firestore
+          .collection('stan')
+          .doc(stanId)
+          .collection('menu')
+          .get();
+
+      for (var menuDoc in menuSnapshot.docs) {
+        final menuData = menuDoc.data() as Map<String, dynamic>;
+
+        // Inject the correct stan ID
+        menuData['stanId'] = stanId;
+
+        allMenus.add(CreateMenu.fromMap(menuData, menuDoc.id));
+      }
     }
+
+    return allMenus;
+  } catch (e) {
+    debugPrint('Error getting all menus: $e');
+    return [];
   }
+}
+
 
   // Menambahkan menu baru
   Future<String?> addMenu({
@@ -53,7 +74,7 @@ class MenuService {
         jenis: jenis,
         foto: foto,
         deskripsi: deskripsi,
-        idStan: uid,
+        stanId: uid,
       );
 
       final DocumentReference docRef = await menuCollection.add(menu.toMap());
@@ -157,7 +178,7 @@ class MenuService {
   Future<List<CreateMenu>> getMenusByStanId(String stanId) async {
     try {
       final QuerySnapshot snapshot =
-          await _menuCollection.where('id_stan', isEqualTo: stanId).get();
+          await _menuCollection.where('stanId', isEqualTo: stanId).get();
 
       return snapshot.docs.map((doc) {
         return CreateMenu.fromMap(doc.data() as Map<String, dynamic>, doc.id);
