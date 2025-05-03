@@ -88,7 +88,8 @@ class CartService {
         'timestamp': FieldValue.serverTimestamp(),
         'totalPrice': cartItems.fold(
             0.0, (sum, item) => sum + (item.menu.price * item.quantity)),
-        'status': 'Sedang dimasak', // New status field with default value
+        'status': 'Sedang dimasak',
+        'stan_id': cartItems.isNotEmpty ? cartItems[0].menu.stanId : null,
       });
 
       // Add the menu items as sub-collection of this order
@@ -96,7 +97,6 @@ class CartService {
         await orderRef.collection('menu_items').doc(item.menu.id).set({
           'menu_id': item.menu.id,
           'quantity': item.quantity,
-          'stan_id': item.menu.stanId,
         });
       }
 
@@ -110,17 +110,34 @@ class CartService {
   }
 
   // New method to get orders for current user
-  Stream<List<Map<String, dynamic>>> getOrders() {
+  Stream<List<Map<String, dynamic>>> getOrders() async* {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
-      throw Exception('User not logged in');
+      print('[getOrders] User not logged in');
+      yield [];
+      return;
     }
-    return _orderCollection
-        .where('uid', isEqualTo: userId)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => {'id': doc.id, ...doc.data() as Map<String, dynamic>})
-            .toList());
+
+    print('[getOrders] Fetching orders for user: $userId');
+
+    try {
+      await for (var snapshot in _orderCollection
+          .where('uid', isEqualTo: userId)
+          .orderBy('timestamp', descending: true)
+          .snapshots()) {
+        print('[getOrders] Orders fetched: ${snapshot.docs.length} documents');
+
+        final orders = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          print('[getOrders] Order data: ${doc.id} => $data');
+          return {'id': doc.id, ...data};
+        }).toList();
+
+        yield orders;
+      }
+    } catch (e) {
+      print('[getOrders] Error fetching orders: $e');
+      yield [];
+    }
   }
 }
