@@ -6,7 +6,7 @@ class CreateMenu {
   final JenisMenu jenis;
   final String? foto;
   final String? deskripsi;
-  final String? idStan;
+  final String? stanId;
   bool isDiskon; // Add this property
 
   CreateMenu({
@@ -16,7 +16,7 @@ class CreateMenu {
     required this.jenis,
     this.foto,
     this.deskripsi,
-    this.idStan,
+    this.stanId,
     this.isDiskon = false, // Default value
   });
 
@@ -29,8 +29,8 @@ class CreateMenu {
       jenis: _stringToJenisMenu(map['jenis']),
       foto: map['foto'],
       deskripsi: map['deskripsi'],
-      idStan: map['id_stan'],
-      isDiskon: map['isDiskon'] ?? false, // Initialize from map
+      stanId: map['stanId'],
+      isDiskon: map['isDiskon'] ?? false,
     );
   }
 
@@ -41,7 +41,7 @@ class CreateMenu {
       'jenis': jenisMenuToString(jenis),
       'foto': foto,
       'deskripsi': deskripsi,
-      'id_stan': idStan,
+      'stanId': stanId,
       'isDiskon': isDiskon, // Include isDiskon in the map
     };
   }
