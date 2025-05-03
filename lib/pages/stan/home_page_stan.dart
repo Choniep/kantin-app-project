@@ -26,21 +26,31 @@ class _HomePageStanState extends State<HomePageStan> {
   Future<void> fetchSalesData() async {
     final user = _auth.currentUser;
     if (user == null) {
+      debugPrint('No authenticated user found.');
       setState(() {
         isLoading = false;
       });
       return;
     }
+
     final uid = user.uid;
     final now = DateTime.now();
     final startOfYear = DateTime(now.year, 1, 1);
     final endOfYear = DateTime(now.year + 1, 1, 1);
 
+    debugPrint('Fetching orders for UID: $uid from $startOfYear to $endOfYear');
+
     try {
-      QuerySnapshot ordersSnapshot = await _firestore
+      final query = _firestore
           .collection('orders')
-          .where('stan_id', isEqualTo: uid)
-          .get();
+          .where('stanId', isEqualTo: uid)
+          .where('status', isEqualTo: 'selesai');
+
+      debugPrint('Running Firestore query...');
+
+      QuerySnapshot ordersSnapshot = await query.get();
+
+      debugPrint('Fetched ${ordersSnapshot.docs.length} documents.');
 
       Map<int, double> monthlySales = {
         for (var i = 1; i <= 12; i++) i: 0.0,
@@ -48,16 +58,25 @@ class _HomePageStanState extends State<HomePageStan> {
 
       for (var doc in ordersSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        final timestamp = data['timestamp'] as Timestamp?;
-        final status = data['status'];
+        final timestamp = data['timestamp'];
         final totalPrice = (data['totalPrice'] ?? 0).toDouble();
+        final status = data['status'];
+        final stanId = data['stanId'];
 
-        if (timestamp != null &&
-            status == 'Selesai' &&
-            timestamp.toDate().isAfter(startOfYear) &&
-            timestamp.toDate().isBefore(endOfYear)) {
-          final month = timestamp.toDate().month;
-          monthlySales[month] = (monthlySales[month] ?? 0) + totalPrice;
+        debugPrint(
+            'Order -> timestamp: $timestamp, status: $status, stanId: $stanId, totalPrice: $totalPrice');
+
+        if (timestamp is Timestamp) {
+          DateTime date = timestamp.toDate();
+          if (date.isAfter(startOfYear) && date.isBefore(endOfYear)) {
+            int month = date.month;
+            debugPrint('Adding $totalPrice to month $month');
+            monthlySales[month] = (monthlySales[month] ?? 0) + totalPrice;
+          } else {
+            debugPrint('Skipping order - date $date not in range');
+          }
+        } else {
+          debugPrint('Invalid timestamp format: $timestamp');
         }
       }
 
@@ -65,16 +84,18 @@ class _HomePageStanState extends State<HomePageStan> {
         salesPerMonth = monthlySales;
         isLoading = false;
       });
+
+      debugPrint('Monthly sales: $monthlySales');
     } catch (e) {
+      debugPrint('Error fetching sales data: $e');
       setState(() {
         isLoading = false;
       });
-      debugPrint('Error fetching sales data: $e');
     }
   }
 
   List<FlSpot> getLineSpots() {
-    return List.generate(6, (i) {
+    return List.generate(12, (i) {
       double value = salesPerMonth[i + 1] ?? 0.0;
       return FlSpot(i.toDouble(), value);
     });
@@ -87,6 +108,12 @@ class _HomePageStanState extends State<HomePageStan> {
     4: 'April',
     5: 'May',
     6: 'June',
+    7: 'July',
+    8: 'August',
+    9: 'September',
+    10: 'October',
+    11: 'November',
+    12: 'December',
   };
 
   @override
@@ -121,7 +148,7 @@ class _HomePageStanState extends State<HomePageStan> {
                         fontSize: 16,
                       ),
                     ),
-                    const Text('Last 6 months'),
+                    const Text('Last 12 months'),
                     const SizedBox(height: 12),
                     Container(
                       height: 200,
@@ -136,7 +163,7 @@ class _HomePageStanState extends State<HomePageStan> {
                           maxY: (salesPerMonth.values.isEmpty
                                   ? 0
                                   : salesPerMonth.values
-                                          .reduce((a, b) => a > b ? a : b)) *
+                                      .reduce((a, b) => a > b ? a : b)) *
                               1.2,
                           lineBarsData: [
                             LineChartBarData(
@@ -150,19 +177,28 @@ class _HomePageStanState extends State<HomePageStan> {
                           titlesData: FlTitlesData(
                             leftTitles: AxisTitles(
                               sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40,
-                                interval: 10000,
-                                getTitlesWidget: (value, meta) {
-                                  return Text('${value ~/ 1000}K');
-                                },
+                                showTitles:
+                                    false, // Set to false to remove Y-axis labels
                               ),
                             ),
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
                                 getTitlesWidget: (value, meta) {
-                                  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                                  const months = [
+                                    'Jan',
+                                    'Feb',
+                                    'Mar',
+                                    'Apr',
+                                    'May',
+                                    'Jun',
+                                    'Jul',
+                                    'Aug',
+                                    'Sep',
+                                    'Oct',
+                                    'Nov',
+                                    'Dec'
+                                  ];
                                   if (value.toInt() >= 0 &&
                                       value.toInt() < months.length) {
                                     return Text(months[value.toInt()]);
