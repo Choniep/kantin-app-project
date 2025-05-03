@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ukk_kantin/components/login_components/form_box_login.dart';
 import 'package:ukk_kantin/services/auth/auth_service.dart';
@@ -18,14 +19,47 @@ class _LoginPageState extends State<LoginPage> {
     // get instance of auth service
     final authService = AuthService();
 
+    // show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
     // try sign in
     try {
-      await authService.signInWithEmailPassword(
+      final userCredential = await authService.signInWithEmailPassword(
           _emailController.text, _passwordController.text);
+
+      // fetch user role from Firestore
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).get();
+      final role = userDoc['role'];
+
+      // close loading dialog
+      Navigator.of(context).pop();
+
+      // navigate based on role
+      if (role == 'stan') {
+        Navigator.pushReplacementNamed(context, '/home_stan');
+      } else if (role == 'siswa') {
+        Navigator.pushReplacementNamed(context, '/home_customer');
+      } else {
+        // unknown role, show error
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Unknown user role'),
+            content: Text('Role "$role" is not recognized.'),
+          ),
+        );
+      }
     }
 
     // display any error
     catch (e) {
+      // close loading dialog if open
+      Navigator.of(context).pop();
+
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
