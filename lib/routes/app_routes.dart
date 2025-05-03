@@ -57,7 +57,7 @@ class AppRoutes {
     addProductPage: (context) => const AddProductPage(),
 
     // siswa
-    homePageSiswa: (context) => const HomePageSiswa(),
+    homePageSiswa: (context) => HomePageSiswa(),
     mainScreenSiswaPage: (context) => const MainScreenCustomerPage(),
     orderPageSiswa: (context) => const OrderListPage(),
     cartPage: (context) => const CartPage(),
