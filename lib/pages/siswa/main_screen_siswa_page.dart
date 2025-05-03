@@ -15,7 +15,7 @@ class _MainScreenCustomerPageState extends State<MainScreenCustomerPage> {
 
   // list halaman yang akan ditampilkan
   static final List<Widget> _pages = <Widget>[
-    const HomePageSiswa(),
+    HomePageSiswa(),
     const OrderSiswaPage(),
     const ProfilPageSiswa(),
   ];
