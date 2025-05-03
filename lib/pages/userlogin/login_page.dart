@@ -40,9 +40,9 @@ class _LoginPageState extends State<LoginPage> {
 
       // navigate based on role
       if (role == 'stan') {
-        Navigator.pushReplacementNamed(context, '/home_stan');
+        Navigator.pushReplacementNamed(context, '/screen_stan');
       } else if (role == 'siswa') {
-        Navigator.pushReplacementNamed(context, '/home_customer');
+        Navigator.pushReplacementNamed(context, '/screen_siswa');
       } else {
         // unknown role, show error
         showDialog(

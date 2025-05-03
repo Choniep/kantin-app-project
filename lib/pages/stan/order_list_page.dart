@@ -101,6 +101,9 @@ class _OrderListPageState extends State<OrderListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

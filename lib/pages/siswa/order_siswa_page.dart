@@ -80,6 +80,7 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Order Page'),
       ),
       body: Column(

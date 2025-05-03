@@ -120,6 +120,7 @@ class _HomePageStanState extends State<HomePageStan> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Stand Performance'),
         actions: [
           IconButton(
