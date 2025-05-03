@@ -35,14 +35,50 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
     });
   }
 
+  Future<void> updateOrderStatus(String orderId, String newStatus) async {
+    await FirebaseFirestore.instance
+        .collection('orders')
+        .doc(orderId)
+        .update({'status': newStatus});
+  }
+
+  void showReceiptDialog(Map<String, dynamic> order) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final timestamp = order['timestamp'] as Timestamp?;
+        final date = timestamp != null
+            ? DateTime.fromMillisecondsSinceEpoch(timestamp.millisecondsSinceEpoch)
+            : null;
+        return AlertDialog(
+          title: Text('Receipt for Order ${order['order_id'] ?? order['id']}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (date != null)
+                Text('Date: ${date.toLocal().toString().split(' ')[0]}'),
+              Text('Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
+              Text('Status: ${order['status'] ?? 'Unknown'}'),
+              // Additional receipt details can be added here
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order Page'),
-        actions: [
-          // Removed logout button as per request
-        ],
+        title: const Text('Order Page'),
       ),
       body: Column(
         children: [
@@ -57,8 +93,8 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12.0),
                   child: Text(
                     'Filter Order',
                     style: TextStyle(
@@ -71,17 +107,17 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
                   children: [
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey[300]!),
                           borderRadius: BorderRadius.circular(8),
                           color: Colors.white,
                         ),
                         child: DropdownButton<String>(
-                          hint: Text('Select Month'),
+                          hint: const Text('Select Month'),
                           value: selectedMonth,
                           isExpanded: true,
-                          underline: SizedBox(),
+                          underline: const SizedBox(),
                           items: months.map((String month) {
                             return DropdownMenuItem<String>(
                               value: month,
@@ -96,20 +132,20 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey[300]!),
                           borderRadius: BorderRadius.circular(8),
                           color: Colors.white,
                         ),
                         child: DropdownButton<String>(
-                          hint: Text('Select Year'),
+                          hint: const Text('Select Year'),
                           value: selectedYear,
                           isExpanded: true,
-                          underline: SizedBox(),
+                          underline: const SizedBox(),
                           items: years.map((String year) {
                             return DropdownMenuItem<String>(
                               value: year,
@@ -124,9 +160,9 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     IconButton(
-                      icon: Icon(Icons.clear),
+                      icon: const Icon(Icons.clear),
                       onPressed: clearFilters,
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.grey[200],
@@ -138,18 +174,18 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: CartService().getOrders(),
+            child: StreamBuilder<List<Map<String, dynamic>>>(  
+              stream: getFilteredOrders(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error loading orders'));
+                  return const Center(child: Text('Error loading orders'));
                 }
                 final orders = snapshot.data ?? [];
                 if (orders.isEmpty) {
-                  return Center(child: Text('No orders found'));
+                  return const Center(child: Text('No orders found'));
                 }
                 return ListView.builder(
                   itemCount: orders.length,
@@ -160,8 +196,9 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
                         ? DateTime.fromMillisecondsSinceEpoch(
                             timestamp.millisecondsSinceEpoch)
                         : null;
+                    final status = order['status'] ?? 'Unknown';
                     return Card(
-                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: ListTile(
                         title: Text('Order ID: ${order['order_id'] ?? order['id']}'),
                         subtitle: Column(
@@ -170,7 +207,22 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
                             if (date != null)
                               Text('Date: ${date.toLocal().toString().split(' ')[0]}'),
                             Text('Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
-                            Text('Status: ${order['status'] ?? 'Unknown'}'),
+                            Text('Status: $status'),
+                            if (status == 'siap diambil')
+                              ElevatedButton(
+                                onPressed: () async {
+                                  await updateOrderStatus(order['order_id'] ?? order['id'], 'selesai');
+                                  setState(() {});
+                                },
+                                child: const Text('ambil dan bayar'),
+                              ),
+                            if (status == 'selesai')
+                              ElevatedButton(
+                                onPressed: () {
+                                  showReceiptDialog(order);
+                                },
+                                child: const Text('lihat struk'),
+                              ),
                           ],
                         ),
                       ),
@@ -183,5 +235,22 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
         ],
       ),
     );
+  }
+
+  Stream<List<Map<String, dynamic>>> getFilteredOrders() {
+    final query = FirebaseFirestore.instance.collection('orders');
+    
+    if (selectedMonth != null) {
+      // Filter by month
+      query.where('month', isEqualTo: selectedMonth);
+    }
+    
+    if (selectedYear != null) {
+      // Filter by year
+      query.where('year', isEqualTo: selectedYear);
+    }
+
+    return query.snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList());
   }
 }
