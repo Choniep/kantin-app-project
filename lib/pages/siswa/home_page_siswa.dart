@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:ukk_kantin/models/menu.dart';
-import 'package:ukk_kantin/models/siswa/restaurant.dart'; // Ensure this is the correct import
-import 'menu_page.dart';
+import 'package:ukk_kantin/models/siswa/restaurant.dart';
+import 'package:ukk_kantin/pages/siswa/menu_page.dart';
+import 'package:ukk_kantin/services/canteen/diskon_service.dart';
 
 class HomePageSiswa extends StatelessWidget {
-  const HomePageSiswa({super.key});
+  HomePageSiswa({super.key});
 
   Future<List<Restaurant>> _fetchRestaurants() async {
     final QuerySnapshot snapshot =
@@ -38,34 +38,27 @@ class HomePageSiswa extends StatelessWidget {
         })
         .toList();
   }
+  
+  final diskonService = DiskonService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Column(
+        title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Kantin Sekolah',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const Text(
+            Text(
               'Pesan makanan favoritmu!',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-              ),
+              style: TextStyle(fontSize: 14),
             ),
           ],
         ),
-        actions: [
-          // Removed cart icon from here as per request
-        ],
       ),
       body: FutureBuilder<List<Restaurant>>(
         future: _fetchRestaurants(),
@@ -82,7 +75,6 @@ class HomePageSiswa extends StatelessWidget {
           final restaurants = snapshot.data!;
           return ListView(
             children: [
-              // Categories Section
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -90,10 +82,7 @@ class HomePageSiswa extends StatelessWidget {
                   children: [
                     const Text(
                       'Kategori',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -111,8 +100,6 @@ class HomePageSiswa extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // Restaurants Section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -120,10 +107,7 @@ class HomePageSiswa extends StatelessWidget {
                   children: [
                     const Text(
                       'Stan Tersedia',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
                     ListView.builder(
@@ -131,8 +115,7 @@ class HomePageSiswa extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: restaurants.length,
                       itemBuilder: (context, index) {
-                        return _buildRestaurantCard(
-                            context, restaurants[index]);
+                        return _buildRestaurantCard(context, restaurants[index]);
                       },
                     ),
                   ],
@@ -157,30 +140,31 @@ class HomePageSiswa extends StatelessWidget {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              size: 30,
-              color: Colors.deepPurple,
-            ),
+            child: Icon(icon, size: 30, color: Colors.deepPurple),
           ),
           const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12),
-          ),
+          Text(title, style: const TextStyle(fontSize: 12)),
         ],
       ),
     );
   }
 
   Widget _buildRestaurantCard(BuildContext context, Restaurant restaurant) {
-    print('Navigating to MenuPage with restaurant: id=${restaurant.id}, name=${restaurant.name}, menus count=${restaurant.menus.length}');
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        await diskonService.updateStanDiscounts(restaurant.id);
+        final updatedMenus = await _fetchMenus(restaurant.id);
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MenuPage(restaurant: restaurant),
+            builder: (context) => MenuPage(
+              restaurant: Restaurant(
+                id: restaurant.id,
+                name: restaurant.name,
+                menus: updatedMenus,
+              ),
+            ),
           ),
         );
       },
@@ -193,12 +177,10 @@ class HomePageSiswa extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Restaurant Image
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
               child: Image.network(
-                'https://picsum.photos/seed/${restaurant.id}/400/200', // Placeholder image
+                'https://picsum.photos/seed/${restaurant.id}/400/200',
                 height: 150,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -209,27 +191,18 @@ class HomePageSiswa extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Restaurant Name
                   Text(
                     restaurant.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
-                  // Rating and Categories
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.amber, size: 16),
-                      const Text(
-                        '4.5',
-                        style: TextStyle(fontSize: 14),
-                      ),
+                      const Text('4.5', style: TextStyle(fontSize: 14)),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(12),
@@ -242,17 +215,13 @@ class HomePageSiswa extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  // Additional Info
                   const Row(
                     children: [
                       Icon(Icons.access_time, size: 16, color: Colors.grey),
                       SizedBox(width: 4),
                       Text(
                         'Buka',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.green,
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.green),
                       ),
                     ],
                   ),
