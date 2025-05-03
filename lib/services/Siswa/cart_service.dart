@@ -33,7 +33,7 @@ class CartService {
         'menuId': cartItem.menu.id,
         'quantity': cartItem.quantity,
         'price': cartItem.menu.price,
-        'stanId': cartItem.menu.stanId, // <-- camelCase
+        'stanId': cartItem.menu.stanId,
       });
     }
   }
@@ -62,7 +62,7 @@ class CartService {
             name: '',
             price: (data['price'] ?? 0).toDouble(),
             photo: '',
-            stanId: data['stanId'] ?? '', // <-- camelCase
+            stanId: data['stanId'] ?? '',
             jenisMenu: '',
           ),
           quantity: data['quantity'] ?? 1,
@@ -80,9 +80,8 @@ class CartService {
       final orderRef = _orderCollection.doc();
       final boothId = cartItems.isNotEmpty ? cartItems.first.menu.stanId : null;
 
-      print('🚀 Checkout: writing stanId = $boothId');
+      print('Checkout: writing stanId = $boothId');
 
-      // ✅ Fetch nama_stan from 'stan' collection
       String? namaStan;
       if (boothId != null && boothId.isNotEmpty) {
         final stanDoc = await _firestore.collection('stan').doc(boothId).get();
@@ -104,12 +103,11 @@ class CartService {
         ),
         'status': 'Sedang dimasak',
         'stanId': boothId,
-        'nama_stan': namaStan ?? 'Unknown Stan', // ✅ Added field
+        'nama_stan': namaStan ?? 'Unknown Stan',
         'month': DateTime.now().month,
         'year': DateTime.now().year,
       });
 
-      // Add the menu items as sub-collection
       for (var item in cartItems) {
         await orderRef.collection('menu_items').doc(item.menu.id).set({
           'menu_id': item.menu.id,
@@ -117,7 +115,6 @@ class CartService {
         });
       }
 
-      // Clear the cart
       for (var item in cartItems) {
         await _cartCollection.doc(item.menu.id).delete();
       }
