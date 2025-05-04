@@ -54,7 +54,7 @@ class MenuPage extends StatelessWidget {
                         bottomLeft: Radius.circular(12),
                       ),
                       child: (menu.photo != null && menu.photo.isNotEmpty)
-                          ? Image.asset(
+                          ? Image.network(
                               menu.photo,
                               width: 100,
                               height: 100,
