@@ -111,6 +111,7 @@ class CartService {
       for (var item in cartItems) {
         await orderRef.collection('menu_items').doc(item.menu.id).set({
           'menu_id': item.menu.id,
+          'nama_menu': item.menu.name,
           'quantity': item.quantity,
         });
       }
