@@ -19,58 +19,6 @@ class CartService {
     return _firestore.collection('siswa').doc(uid).collection('cart');
   }
 
-  Future<void> addCartItem(CartItem cartItem) async {
-    final doc = _cartCollection.doc(cartItem.menu.id);
-    final snapshot = await doc.get();
-    if (snapshot.exists) {
-      final existingQuantity =
-          (snapshot.data() as Map<String, dynamic>)['quantity'] ?? 0;
-      await doc.update({
-        'quantity': existingQuantity + cartItem.quantity,
-      });
-    } else {
-      await doc.set({
-        'menuId': cartItem.menu.id,
-        'quantity': cartItem.quantity,
-        'price': cartItem.menu.price,
-        'stanId': cartItem.menu.stanId,
-      });
-    }
-  }
-
-  Future<void> updateCartItemQuantity(String menuId, int quantity) async {
-    final doc = _cartCollection.doc(menuId);
-    if (quantity <= 0) {
-      await doc.delete();
-    } else {
-      await doc.update({'quantity': quantity});
-    }
-  }
-
-  Future<void> removeCartItem(String menuId) async {
-    final doc = _cartCollection.doc(menuId);
-    await doc.delete();
-  }
-
-  Stream<List<CartItem>> getCartItems() {
-    return _cartCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return CartItem(
-          menu: Menu(
-            id: data['menuId'],
-            name: '',
-            price: (data['price'] ?? 0).toDouble(),
-            photo: '',
-            stanId: data['stanId'] ?? '',
-            jenisMenu: '',
-          ),
-          quantity: data['quantity'] ?? 1,
-        );
-      }).toList();
-    });
-  }
-
   Future<void> checkout(List<CartItem> cartItems) async {
     try {
       final user = _auth.currentUser;
@@ -125,34 +73,5 @@ class CartService {
   }
 
   // New method to get orders for current user
-  Stream<List<Map<String, dynamic>>> getOrders() async* {
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) {
-      print('[getOrders] User not logged in');
-      yield [];
-      return;
-    }
 
-    print('[getOrders] Fetching orders for user: $userId');
-
-    try {
-      await for (var snapshot in _orderCollection
-          .where('uid', isEqualTo: userId)
-          .orderBy('timestamp', descending: true)
-          .snapshots()) {
-        print('[getOrders] Orders fetched: ${snapshot.docs.length} documents');
-
-        final orders = snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          print('[getOrders] Order data: ${doc.id} => $data');
-          return {'id': doc.id, ...data};
-        }).toList();
-
-        yield orders;
-      }
-    } catch (e) {
-      print('[getOrders] Error fetching orders: $e');
-      yield [];
-    }
-  }
 }
