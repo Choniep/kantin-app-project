@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +32,25 @@ class _OrderListPageState extends State<OrderListPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Stream<List<QueryDocumentSnapshot>> getOrdersStream() async* {
+  late StreamController<List<QueryDocumentSnapshot>> _ordersController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ordersController = StreamController<List<QueryDocumentSnapshot>>();
+    _loadOrders();
+  }
+
+  @override
+  void dispose() {
+    _ordersController.close();
+    super.dispose();
+  }
+
+  void _loadOrders() async {
     String? uid = _auth.currentUser?.uid;
     if (uid == null) {
-      yield [];
+      _ordersController.add([]);
       return;
     }
 
@@ -68,7 +84,7 @@ class _OrderListPageState extends State<OrderListPage> {
       return false;
     }).toList();
 
-    yield filtered;
+    _ordersController.add(filtered);
   }
 
   Future<String> getSiswaName(String uid) async {
@@ -96,14 +112,13 @@ class _OrderListPageState extends State<OrderListPage> {
         .collection('orders')
         .doc(orderId)
         .update({'status': 'siap diambil'});
+    _loadOrders(); // Refresh after update
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-      ),
+      appBar: AppBar(automaticallyImplyLeading: false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -125,10 +140,9 @@ class _OrderListPageState extends State<OrderListPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Filter Orders',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                const Text('Filter Orders',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -218,7 +232,7 @@ class _OrderListPageState extends State<OrderListPage> {
                     ),
                     const SizedBox(width: 16),
 
-                    // Clear filter
+                    // Clear Filter
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -230,6 +244,7 @@ class _OrderListPageState extends State<OrderListPage> {
                           setState(() {
                             selectedMonth = null;
                           });
+                          _loadOrders(); // Reload on clear
                         },
                       ),
                     ),
@@ -242,7 +257,7 @@ class _OrderListPageState extends State<OrderListPage> {
           // Order List
           Expanded(
             child: StreamBuilder<List<QueryDocumentSnapshot>>(
-              stream: getOrdersStream(),
+              stream: _ordersController.stream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -302,7 +317,8 @@ class _OrderListPageState extends State<OrderListPage> {
                                         child: CircularProgressIndicator());
                                   }
                                   if (menuSnapshot.hasError) {
-                                    return Text('Error: ${menuSnapshot.error}');
+                                    return Text(
+                                        'Error: ${menuSnapshot.error}');
                                   }
                                   if (!menuSnapshot.hasData ||
                                       menuSnapshot.data!.isEmpty) {
@@ -314,7 +330,8 @@ class _OrderListPageState extends State<OrderListPage> {
                                     children: [
                                       ...menuItems.map((item) {
                                         return ListTile(
-                                          title: Text(item['nama_menu']?? ''),
+                                          title:
+                                              Text(item['nama_menu'] ?? ''),
                                           subtitle: Text(
                                               'Quantity: ${item['quantity'] ?? 0}'),
                                         );
@@ -371,10 +388,9 @@ class _OrderListPageState extends State<OrderListPage> {
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                child: const Text(
-                  'Select Month',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: const Text('Select Month',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               Expanded(
                 child: ListView.builder(
@@ -387,6 +403,7 @@ class _OrderListPageState extends State<OrderListPage> {
                           selectedMonth = months[index];
                         });
                         Navigator.pop(context);
+                        _loadOrders(); // Refresh on month selection
                       },
                     );
                   },
@@ -413,10 +430,9 @@ class _OrderListPageState extends State<OrderListPage> {
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                child: const Text(
-                  'Select Year',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: const Text('Select Year',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               Expanded(
                 child: ListView.builder(
@@ -429,6 +445,7 @@ class _OrderListPageState extends State<OrderListPage> {
                           selectedYear = years[index];
                         });
                         Navigator.pop(context);
+                        _loadOrders(); // Refresh on year selection
                       },
                     );
                   },
