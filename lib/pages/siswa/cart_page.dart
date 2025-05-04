@@ -11,7 +11,6 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
     final cartItems = cart.items;
-    final totalPrice = cart.totalPrice;
     final cartService = CartService();
 
     return Scaffold(
@@ -20,7 +19,7 @@ class CartPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: cart.clear, // purely local clear
+            onPressed: cart.clear,
           ),
         ],
       ),
@@ -31,6 +30,17 @@ class CartPage extends StatelessWidget {
               itemCount: cartItems.length,
               itemBuilder: (context, i) {
                 final item = cartItems[i];
+                final double? hargaDiskon = item.menu.hargaDiskon;
+                final bool isDiscounted = hargaDiskon != null;
+                final double effectivePrice =
+                    isDiscounted ? hargaDiskon! : item.menu.price;
+                // Debug prints
+                print('Item: ${item.menu.name}');
+                print('Original price: ${item.menu.price}');
+                print('Harga Diskon: $hargaDiskon');
+                print('Is Discounted: $isDiscounted');
+                print('Effective Price: $effectivePrice');
+
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
@@ -41,7 +51,6 @@ class CartPage extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
-                        // Constrained image
                         if (item.menu.photo.isNotEmpty)
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
@@ -67,13 +76,10 @@ class CartPage extends StatelessWidget {
                             child: const Icon(Icons.image_not_supported),
                           ),
                         const SizedBox(width: 12),
-
-                        // Name + controls + price
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Name
                               Text(
                                 item.menu.name,
                                 textAlign: TextAlign.center,
@@ -82,11 +88,8 @@ class CartPage extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 8),
-
-                              // Qty controls + price
                               Row(
                                 children: [
-                                  // Quantity controller
                                   Container(
                                     decoration: BoxDecoration(
                                       color: Colors.white,
@@ -96,7 +99,8 @@ class CartPage extends StatelessWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         IconButton(
-                                          icon: const Icon(Icons.remove, size: 20),
+                                          icon: const Icon(Icons.remove,
+                                              size: 20),
                                           onPressed: () {
                                             cart.updateCartItemQuantity(
                                               item.menu.id,
@@ -118,12 +122,36 @@ class CartPage extends StatelessWidget {
                                     ),
                                   ),
                                   const Spacer(),
-                                  // Line‑item total
-                                  Text(
-                                    'Rp ${(item.menu.price * item.quantity).toStringAsFixed(0)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      if (isDiscounted) ...[
+                                        Text(
+                                          'Rp ${(item.menu.price * item.quantity).toStringAsFixed(0)}',
+                                          style: const TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Rp ${(hargaDiskon! * item.quantity).toStringAsFixed(0)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
+                                      ] else ...[
+                                        Text(
+                                          'Rp ${(item.menu.price * item.quantity).toStringAsFixed(0)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ],
                               ),
@@ -143,7 +171,6 @@ class CartPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Total row
               Row(
                 children: [
                   const Text(
@@ -155,7 +182,11 @@ class CartPage extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    'Rp ${totalPrice.toStringAsFixed(0)}',
+                    'Rp ${cartItems.fold<double>(0.0, (sum, item) {
+                      final double? hargaDiskon = item.menu.hargaDiskon;
+                      final double price = hargaDiskon ?? item.menu.price;
+                      return sum + (price * item.quantity);
+                    }).toStringAsFixed(0)}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -164,7 +195,6 @@ class CartPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              // Place Order button
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -179,12 +209,12 @@ class CartPage extends StatelessWidget {
                       ? null
                       : () async {
                           try {
-                            // Only here do we send to Firestore
                             await cartService.checkout(cartItems);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Order placed successfully!')),
+                              const SnackBar(
+                                  content: Text('Order placed successfully!')),
                             );
-                            cart.clear(); // clear local cart
+                            cart.clear();
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Error: $e')),
