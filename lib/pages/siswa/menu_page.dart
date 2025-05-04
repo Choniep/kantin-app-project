@@ -28,25 +28,6 @@ class MenuPage extends StatelessWidget {
         itemCount: restaurant.menus.length,
         itemBuilder: (context, index) {
           final menu = restaurant.menus[index];
-          // DEBUG PRINT
-          print('--- MENU ITEM [$index] ---');
-          print('Name: ${menu.name}');
-          print('Description: ${menu.description}');
-          print('Price: ${menu.price}');
-          print('Photo: ${menu.photo}');
-          print('isDiskon: ${menu.isDiskon}');
-          print('Diskon: ${menu.diskon}');
-          print('Jenis Diskon: ${menu.jenisDiskon}');
-
-          // Calculate the discounted price if applicable
-          double? discountedPrice;
-          if (menu.isDiskon &&
-              menu.diskon != null &&
-              menu.jenisDiskon != null) {
-            discountedPrice = menu.jenisDiskon == 'persen'
-                ? menu.price * (1 - (menu.diskon! / 100))
-                : menu.price - (menu.diskon!);
-          }
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -61,7 +42,7 @@ class MenuPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailMenuPage(menu: menu),
+                      builder: (context) => DetailMenuPage(menu: menu, hargaDiskon: menu.hargaDiskon,),
                     ),
                   );
                 },
@@ -119,10 +100,8 @@ class MenuPage extends StatelessWidget {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 8), // Add some space
-                            // Price display
+                            const SizedBox(height: 8),
                             if (menu.isDiskon) ...[
-                              // Show original price with strikethrough
                               Text(
                                 'Rp. ${menu.price.toStringAsFixed(2)}',
                                 style: TextStyle(
@@ -131,10 +110,9 @@ class MenuPage extends StatelessWidget {
                                   decoration: TextDecoration.lineThrough,
                                 ),
                               ),
-                              const SizedBox(height: 4), // Space between prices
-                              // Show discounted price
+                              const SizedBox(height: 4),
                               Text(
-                                'Rp. ${discountedPrice?.toStringAsFixed(2) ?? '0.00'}',
+                                'Rp. ${menu.hargaDiskon?.toStringAsFixed(2) ?? '0.00'}',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.bold,
