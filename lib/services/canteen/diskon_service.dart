@@ -107,7 +107,9 @@ class DiskonService {
     for (final menuDoc in menuSnapshot.docs) {
       final menuId = menuDoc.id;
       final menuData = menuDoc.data();
-      final int originalHarga = menuData['harga'] ?? 0;
+      final num harga = menuData['harga'] ?? 0;
+      final int originalHarga =
+          harga.round();
 
       final discountRef = firestore
           .collection('stan')
