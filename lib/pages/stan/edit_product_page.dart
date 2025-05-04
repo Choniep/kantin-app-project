@@ -285,6 +285,7 @@ class _EditProductPageState extends State<EditProductPage> {
                               : JenisMenu.minuman,
                           foto: imageUrl ?? widget.menu.foto,
                           deskripsi: _descriptionController.text,
+                          stanId: widget.menu.stanId!,
                         );
 
                         if (result != null) {

@@ -9,44 +9,41 @@ import 'package:ukk_kantin/models/discount.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 
 class MenuService {
-  final CollectionReference _menuCollection =
-      FirebaseFirestore.instance.collection('menu');
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Mendapatkan semua menu
   Future<List<CreateMenu>> getAllMenus() async {
-  try {
-    final QuerySnapshot stanSnapshot =
-        await _firestore.collection('stan').get();
+    try {
+      final QuerySnapshot stanSnapshot =
+          await _firestore.collection('stan').get();
 
-    List<CreateMenu> allMenus = [];
+      List<CreateMenu> allMenus = [];
 
-    for (var stanDoc in stanSnapshot.docs) {
-      String stanId = stanDoc.id;
-      final QuerySnapshot menuSnapshot = await _firestore
-          .collection('stan')
-          .doc(stanId)
-          .collection('menu')
-          .get();
+      for (var stanDoc in stanSnapshot.docs) {
+        String stanId = stanDoc.id;
+        final QuerySnapshot menuSnapshot = await _firestore
+            .collection('stan')
+            .doc(stanId)
+            .collection('menu')
+            .get();
 
-      for (var menuDoc in menuSnapshot.docs) {
-        final menuData = menuDoc.data() as Map<String, dynamic>;
+        for (var menuDoc in menuSnapshot.docs) {
+          final menuData = menuDoc.data() as Map<String, dynamic>;
 
-        // Inject the correct stan ID
-        menuData['stanId'] = stanId;
+          // Inject the correct stan ID
+          menuData['stanId'] = stanId;
 
-        allMenus.add(CreateMenu.fromMap(menuData, menuDoc.id));
+          allMenus.add(CreateMenu.fromMap(menuData, menuDoc.id));
+        }
       }
+
+      return allMenus;
+    } catch (e) {
+      debugPrint('Error getting all menus: $e');
+      return [];
     }
-
-    return allMenus;
-  } catch (e) {
-    debugPrint('Error getting all menus: $e');
-    return [];
   }
-}
-
 
   // Menambahkan menu baru
   Future<String?> addMenu({
@@ -93,6 +90,7 @@ class MenuService {
     required JenisMenu jenis,
     String? foto,
     String? deskripsi,
+    required String stanId, // <-- pass this from your EditProductPage
   }) async {
     try {
       final Map<String, dynamic> data = {
@@ -103,7 +101,13 @@ class MenuService {
         'deskripsi': deskripsi,
       };
 
-      await _menuCollection.doc(id).update(data);
+      await _firestore
+          .collection('stan')
+          .doc(stanId)
+          .collection('menu')
+          .doc(id)
+          .update(data);
+
       return id;
     } catch (e) {
       debugPrint('Error updating menu: $e');
@@ -143,57 +147,6 @@ class MenuService {
       return menus;
     } catch (e) {
       debugPrint('Error getting menus: $e');
-      return [];
-    }
-  }
-
-  // Mendapatkan menu berdasarkan jenis
-  Future<List<CreateMenu>> getMenusByType(JenisMenu jenisMenu) async {
-    try {
-      final QuerySnapshot snapshot = await _menuCollection
-          .where('jenis', isEqualTo: CreateMenu.jenisMenuToString(jenisMenu))
-          .get();
-
-      return snapshot.docs.map((doc) {
-        return CreateMenu.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      }).toList();
-    } catch (e) {
-      debugPrint('Error getting menus by type: $e');
-      return [];
-    }
-  }
-
-  // Mendapatkan menu berdasarkan ID stan
-  Future<List<CreateMenu>> getMenusByStanId(String stanId) async {
-    try {
-      final QuerySnapshot snapshot =
-          await _menuCollection.where('stanId', isEqualTo: stanId).get();
-
-      return snapshot.docs.map((doc) {
-        return CreateMenu.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-      }).toList();
-    } catch (e) {
-      debugPrint('Error getting menus by stan ID: $e');
-      return [];
-    }
-  }
-
-  // Mencari menu berdasarkan nama
-  Future<List<CreateMenu>> searchMenus(String keyword) async {
-    try {
-      // Firestore tidak mendukung search seperti SQL LIKE
-      // Kita perlu mengambil semua data dan filter di client
-      // Atau menggunakan Firestore extensions seperti Algolia
-      final QuerySnapshot snapshot = await _menuCollection.get();
-
-      return snapshot.docs
-          .map((doc) =>
-              CreateMenu.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-          .where((menu) =>
-              menu.nama.toLowerCase().contains(keyword.toLowerCase()))
-          .toList();
-    } catch (e) {
-      debugPrint('Error searching menus: $e');
       return [];
     }
   }
