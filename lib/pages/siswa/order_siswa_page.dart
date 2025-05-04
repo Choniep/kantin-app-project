@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ukk_kantin/services/Siswa/cart_service.dart';
 
@@ -259,7 +260,8 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
   }
 
   Stream<List<Map<String, dynamic>>> getFilteredOrders() {
-    final query = FirebaseFirestore.instance.collection('orders');
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final query = FirebaseFirestore.instance.collection('orders').where('uid', isEqualTo: uid);
 
     if (selectedMonth != null) {
       // Filter by month
