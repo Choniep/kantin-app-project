@@ -63,14 +63,6 @@ class DiskonService {
     });
   }
 
-  // Optionally, you can create a method to check discounts for multiple menus
-  void checkDiskonsForMenus(List<CreateMenu> menus, List<Diskon> diskons) {
-    for (var menu in menus) {
-      checkDiskon(menu, diskons);
-    }
-  }
-
-  // New method to get active discounts
   Future<List<Diskon>> getActiveDiscount() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return [];
@@ -104,6 +96,7 @@ class DiskonService {
     return activeDiscounts;
   }
 
+  // Terpakai di role siswa ketika load restaurant
   Future<void> updateStanDiscounts(String stanId) async {
     final firestore = FirebaseFirestore.instance;
     final now = DateTime.now();
