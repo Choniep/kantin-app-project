@@ -7,7 +7,7 @@ class CreateMenu {
   final String? foto;
   final String? deskripsi;
   final String? stanId;
-  bool isDiskon; // Add this property
+  bool isDiskon;
 
   CreateMenu({
     this.id,
@@ -17,7 +17,7 @@ class CreateMenu {
     this.foto,
     this.deskripsi,
     this.stanId,
-    this.isDiskon = false, // Default value
+    this.isDiskon = false,
   });
 
   // Factory constructor to create a CreateMenu from a map
