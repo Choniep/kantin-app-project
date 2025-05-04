@@ -6,7 +6,8 @@ import 'package:ukk_kantin/models/siswa/cart.dart';
 
 class DetailMenuPage extends StatefulWidget {
   final Menu menu;
-  const DetailMenuPage({super.key, required this.menu});
+  final double? hargaDiskon; // Add the hargaDiskon parameter
+  const DetailMenuPage({super.key, required this.menu, this.hargaDiskon});
 
   @override
   _DetailMenuPageState createState() => _DetailMenuPageState();
@@ -76,8 +77,21 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
+                        // Display the original price with a strike-through if discount exists
+                        widget.hargaDiskon != null && widget.hargaDiskon != widget.menu.price
+                            ? Text(
+                                'Rp ${widget.menu.price.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              )
+                            : Container(),
+                        const SizedBox(height: 8),
+                        // Display the discounted price (if applicable)
                         Text(
-                          'Rp ${widget.menu.price.toStringAsFixed(0)}',
+                          'Rp ${widget.hargaDiskon?.toStringAsFixed(0) ?? widget.menu.price.toStringAsFixed(0)}',
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -96,8 +110,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          widget.menu.description ??
-                              'No description available',
+                          widget.menu.description ?? 'No description available',
                           style: Theme.of(context)
                               .textTheme
                               .bodyLarge
@@ -148,21 +161,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Calculate discounted price
-                double discountedPrice = widget.menu.price;
-                final discountType =
-                    widget.menu.jenisDiskon?.toLowerCase() ?? '';
-                final discountValue = widget.menu.diskon ?? 0;
-
-                if (widget.menu.isDiskon && discountValue > 0) {
-                  if (discountType == 'persen') {
-                    discountedPrice = widget.menu.price *
-                        (1 - (discountValue / 100));
-                  } else if (discountType == 'rupiah') {
-                    discountedPrice = widget.menu.price - discountValue;
-                  }
-                  if (discountedPrice < 0) discountedPrice = 0;
-                }
+                // Calculate discounted price (if applicable)
+                double discountedPrice = widget.hargaDiskon ?? widget.menu.price;
 
                 final discountedMenu = Menu(
                   id: menuId,
