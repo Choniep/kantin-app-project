@@ -1,3 +1,8 @@
+// Enum for menu types
+enum JenisMenu {
+  makanan,
+  minuman,
+}
 
 class CreateMenu {
   final String? id;
@@ -20,12 +25,12 @@ class CreateMenu {
     this.isDiskon = false,
   });
 
-  // Factory constructor to create a CreateMenu from a map
+  /// Factory constructor to create a CreateMenu instance from Firestore Map
   factory CreateMenu.fromMap(Map<String, dynamic> map, String documentId) {
     return CreateMenu(
       id: documentId,
       nama: map['nama'] ?? '',
-      harga: (map['harga'] ?? 0.0).toDouble(),
+      harga: (map['harga'] as num?)?.toDouble() ?? 0.0,
       jenis: _stringToJenisMenu(map['jenis']),
       foto: map['foto'],
       deskripsi: map['deskripsi'],
@@ -34,6 +39,7 @@ class CreateMenu {
     );
   }
 
+  /// Convert CreateMenu instance to Firestore-compatible Map
   Map<String, dynamic> toMap() {
     return {
       'nama': nama,
@@ -42,30 +48,23 @@ class CreateMenu {
       'foto': foto,
       'deskripsi': deskripsi,
       'stanId': stanId,
-      'isDiskon': isDiskon, // Include isDiskon in the map
+      'isDiskon': isDiskon,
     };
   }
 
-  // Helper method for converting String to enum JenisMenu
+  /// Convert string to JenisMenu enum
   static JenisMenu _stringToJenisMenu(String? jenis) {
-    if (jenis == 'makanan') {
-      return JenisMenu.makanan;
-    } else if (jenis == 'minuman') {
-      return JenisMenu.minuman;
+    switch (jenis) {
+      case 'minuman':
+        return JenisMenu.minuman;
+      case 'makanan':
+      default:
+        return JenisMenu.makanan;
     }
-    // Default if not matched
-    return JenisMenu.makanan;
   }
 
-  // Helper method for converting enum JenisMenu to String
+  /// Convert JenisMenu enum to string
   static String jenisMenuToString(JenisMenu jenis) {
     return jenis.toString().split('.').last;
   }
-}
-
-
-// Enum for menu types
-enum JenisMenu {
-  makanan,
-  minuman,
 }
