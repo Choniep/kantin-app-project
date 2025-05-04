@@ -39,7 +39,7 @@ class Menu {
       jenisMenu: data['jenis'] ?? 'Unknown',
       diskon: data['diskon']?.toDouble(),
       jenisDiskon: data['diskon_type'],
-      hargaDiskon: data['harga_diskon'],
+      hargaDiskon: data['harga_diskon']?.toDouble(),
     );
   }
 
