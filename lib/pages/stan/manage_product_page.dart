@@ -36,7 +36,7 @@ class _ManageProductPageState extends State<ManageProductPage> {
 
     // Fetch discounts for each menu and check if they are active
     for (var menu in menus) {
-      List<Diskon> diskons = await _menuService.getDiskonsForMenu(menu.id!);
+      List<Diskon> diskons = await _diskonService.getDiskonsForMenu(menu.id!);
       _diskonService.checkDiskon(
           menu, diskons); // Check discounts for each menu
     }

@@ -85,17 +85,6 @@ class MenuService {
     }
   }
 
-  // Atau alternatif lain: menerima objek Menu langsung
-  Future<String?> addMenuObject(CreateMenu menu) async {
-    try {
-      final DocumentReference docRef = await _menuCollection.add(menu.toMap());
-      return docRef.id;
-    } catch (e) {
-      debugPrint('Error adding menu: $e');
-      return null;
-    }
-  }
-
   // Memperbarui menu
   Future<String?> updateMenu({
     required String id,
@@ -207,72 +196,5 @@ class MenuService {
       debugPrint('Error searching menus: $e');
       return [];
     }
-  }
-
-  Future<bool> addDiscount({
-    required String menuId,
-    required String namaDiskon,
-    required DateTime tanggalMulai,
-    required DateTime tanggalSelesai,
-    required int diskon,
-    required String diskonType,
-  }) async {
-    final String uid = _auth.currentUser!.uid;
-    try {
-      final docRef = FirebaseFirestore.instance
-          .collection('stan')
-          .doc(uid)
-          .collection('menu')
-          .doc(menuId)
-          .collection('diskon')
-          .doc();
-
-      await docRef.set({
-        'nama_diskon': namaDiskon,
-        'tanggal_mulai': tanggalMulai,
-        'tanggal_selesai': tanggalSelesai,
-        'diskon': diskon,
-        'diskon_type': diskonType,
-      });
-
-      return true; // Indicate success
-    } catch (e) {
-      print('Error adding discount: $e');
-      return false; // Indicate failure
-    }
-  }
-
-  Future<List<Diskon>> getDiskonsForMenu(String menuId) async {
-    final String uid = _auth.currentUser!.uid;
-
-    List<Diskon> diskons = [];
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('stan')
-        .doc(uid)
-        .collection('menu')
-        .doc(menuId)
-        .collection('diskon')
-        .get();
-
-    for (var doc in snapshot.docs) {
-      DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
-      DateTime tanggalSelesai = (doc['tanggal_selesai'] as Timestamp).toDate();
-      DateTime now = DateTime.now();
-      bool isActive = now.isAfter(tanggalMulai) && now.isBefore(tanggalSelesai) || now.isAtSameMomentAs(tanggalSelesai);
-
-      diskons.add(
-        Diskon(
-          tanggalMulai: tanggalMulai,
-          tanggalSelesai: tanggalSelesai,
-          diskon: doc['diskon'],
-          diskonType: doc['diskon_type'],
-          id: uid,
-          namaDiskon: doc['nama_diskon'],
-          isActive: isActive
-        ),
-      );
-    }
-
-    return diskons;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:ukk_kantin/services/canteen/diskon_service.dart';
 import 'package:ukk_kantin/services/canteen/menu_service.dart';
 import 'package:ukk_kantin/models/stan/create_menu.dart';
 
@@ -12,6 +13,7 @@ class AddDiscountPage extends StatefulWidget {
 
 class _AddDiscountPageState extends State<AddDiscountPage> {
   final MenuService _menuService = MenuService();
+  final DiskonService _diskonService = DiskonService();
   late Future<List<CreateMenu>> _menusFuture;
   CreateMenu? _selectedMenu;
 
@@ -120,7 +122,7 @@ class _AddDiscountPageState extends State<AddDiscountPage> {
 
 
     // Assuming you have a method in MenuService to upload the discount
-    final success = await _menuService.addDiscount(
+    final success = await _diskonService.addDiscount(
       menuId: _selectedMenu!.id!, // Use the non-null assertion operator
       namaDiskon: namaDiskon,
       tanggalMulai: _tanggalMulai!,
