@@ -28,7 +28,9 @@ class ProfilPage extends StatelessWidget {
               ProfilMenuButton(
                 title: 'Edit Profil',
                 icon: IconsaxPlusBold.message_edit,
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, '/edit_stan');
+                },
               ),
               ProfilMenuButton(
                 title: 'Manage Discount',
