@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -261,20 +263,52 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
 
   Stream<List<Map<String, dynamic>>> getFilteredOrders() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    final query = FirebaseFirestore.instance.collection('orders').where('uid', isEqualTo: uid);
-
-    if (selectedMonth != null) {
-      // Filter by month
-      query.where('month', isEqualTo: selectedMonth);
-    }
-
-    if (selectedYear != null) {
-      // Filter by year
-      query.where('year', isEqualTo: selectedYear);
-    }
-
-    return query
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+    
+    // Use StreamController to transform the base stream
+    final controller = StreamController<List<Map<String, dynamic>>>();
+    
+    // Get all orders for this user
+    final stream = FirebaseFirestore.instance
+        .collection('orders')
+        .where('uid', isEqualTo: uid)
+        .snapshots();
+        
+    // Subscribe to the stream
+    final subscription = stream.listen((snapshot) {
+      // Process the data
+      List<Map<String, dynamic>> filteredOrders = [];
+      
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final timestamp = data['timestamp'] as Timestamp?;
+        
+        // Skip if no timestamp
+        if (timestamp == null) continue;
+        
+        final date = timestamp.toDate();
+        final orderMonth = months[date.month - 1]; // Convert month number to name
+        final orderYear = date.year.toString();
+        
+        // Apply filters
+        bool matchesMonth = selectedMonth == null || orderMonth == selectedMonth;
+        bool matchesYear = selectedYear == null || orderYear == selectedYear;
+        
+        if (matchesMonth && matchesYear) {
+          // Make sure doc ID is available
+          data['id'] = doc.id;
+          filteredOrders.add(data);
+        }
+      }
+      
+      // Add filtered results to our stream
+      controller.add(filteredOrders);
+    });
+    
+    // Clean up the subscription when the stream is canceled
+    controller.onCancel = () {
+      subscription.cancel();
+    };
+    
+    return controller.stream;
   }
 }
