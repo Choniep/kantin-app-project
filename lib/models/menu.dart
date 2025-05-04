@@ -14,26 +14,25 @@ class Menu {
   final String? jenisDiskon;
   final double? hargaDiskon;
 
-  Menu({
-    required this.id,
-    required this.name,
-    this.description,
-    required this.price,
-    required this.photo,
-    required this.stanId,
-    this.isDiskon = false,
-    required this.jenisMenu,
-    this.diskon,
-    this.jenisDiskon,
-    this.hargaDiskon
-  });
+  Menu(
+      {required this.id,
+      required this.name,
+      this.description,
+      required this.price,
+      required this.photo,
+      required this.stanId,
+      this.isDiskon = false,
+      required this.jenisMenu,
+      this.diskon,
+      this.jenisDiskon,
+      this.hargaDiskon});
 
   factory Menu.fromMap(Map<String, dynamic> data, String documentId) {
     return Menu(
       id: documentId,
       name: data['nama'] ?? 'Unknown Menu',
       description: data['deskripsi'],
-      price: (data['harga'] ?? 0).toDouble(),
+      price: (data['harga'] as num?)?.toDouble() ?? 0.0,
       photo: data['foto'] ?? '',
       stanId: data['stanId'] ?? 'Unknown Stan',
       isDiskon: data['isDiskon'] ?? false,
@@ -59,7 +58,7 @@ class Menu {
       'harga_diskon': hargaDiskon,
     };
   }
-  
+
   // Override equality operator to compare by ID
   @override
   bool operator ==(Object other) {
