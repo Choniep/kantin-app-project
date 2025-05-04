@@ -1,4 +1,3 @@
-// Enum for menu types
 enum JenisMenu {
   makanan,
   minuman,
@@ -12,6 +11,7 @@ class CreateMenu {
   final String? foto;
   final String? deskripsi;
   final String? stanId;
+  final double? hargaDiskon;
   bool isDiskon;
 
   CreateMenu({
@@ -22,6 +22,7 @@ class CreateMenu {
     this.foto,
     this.deskripsi,
     this.stanId,
+    this.hargaDiskon,
     this.isDiskon = false,
   });
 
@@ -35,6 +36,7 @@ class CreateMenu {
       foto: map['foto'],
       deskripsi: map['deskripsi'],
       stanId: map['stanId'],
+      hargaDiskon: (map['harga_diskon'] as num?)?.toDouble(), // <-- NEW
       isDiskon: map['isDiskon'] ?? false,
     );
   }
@@ -48,6 +50,7 @@ class CreateMenu {
       'foto': foto,
       'deskripsi': deskripsi,
       'stanId': stanId,
+      'harga_diskon': hargaDiskon, // <-- NEW
       'isDiskon': isDiskon,
     };
   }

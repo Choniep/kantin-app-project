@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax_plus/iconsax_plus.dart';
 import 'package:ukk_kantin/models/discount.dart';
@@ -17,6 +18,7 @@ class _ManageProductPageState extends State<ManageProductPage> {
   final DiskonService _diskonService = DiskonService();
   final MenuService _menuService = MenuService();
   late Future<List<CreateMenu>> _menus;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -31,16 +33,8 @@ class _ManageProductPageState extends State<ManageProductPage> {
   }
 
   Future<List<CreateMenu>> fetchMenus() async {
-    // Fetch your menus from the service
+    await _diskonService.updateStanDiscounts(_auth.currentUser!.uid);
     List<CreateMenu> menus = await _menuService.getCurrentUserMenus();
-
-    // Fetch discounts for each menu and check if they are active
-    for (var menu in menus) {
-      List<Diskon> diskons = await _diskonService.getDiskonsForMenu(menu.id!);
-      _diskonService.checkDiskon(
-          menu, diskons); // Check discounts for each menu
-    }
-
     return menus;
   }
 
@@ -131,28 +125,39 @@ class _ManageProductPageState extends State<ManageProductPage> {
                               ),
                               const SizedBox(height: 4),
                               // Display original price crossed out if there's a discount
-                              if (menu.isDiskon)
+                              if (menu.isDiskon &&
+                                  menu.hargaDiskon != null) ...[
+                                // Show original price with strikethrough
                                 Text(
                                   'Rp ${menu.harga.toStringAsFixed(0)}',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
-                                    decoration: TextDecoration
-                                        .lineThrough, // Strikethrough effect
+                                    decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
-                              // Display discounted price
-                              Text(
-                                'Rp ${menu.harga.toStringAsFixed(0)}', // Show discounted price
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: menu.isDiskon
-                                      ? Colors.red
-                                      : Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
+                                // Show discounted price
+                                Text(
+                                  'Rp ${menu.hargaDiskon!.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
+                              ] else ...[
+                                // Normal price if no discount
+                                Text(
+                                  'Rp ${menu.harga.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+
                               const SizedBox(height: 4),
                               Container(
                                 padding: const EdgeInsets.symmetric(
