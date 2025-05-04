@@ -45,7 +45,7 @@ class _EditPageStanState extends State<EditPageStan> {
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
-      await FirebaseFirestore.instance.collection('akun').doc(uid).update({
+      await FirebaseFirestore.instance.collection('stan').doc(uid).update({
         'nama_pemilik': _namaPemilikController.text,
         'nama_stan': _namaStanController.text,
         'telp': _telpController.text,
