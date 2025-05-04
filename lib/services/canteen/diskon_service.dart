@@ -7,7 +7,6 @@ class DiskonService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Future<bool> addDiscount({
-
     required String menuId,
     required String namaDiskon,
     required DateTime tanggalMulai,
@@ -40,7 +39,7 @@ class DiskonService {
     }
   }
 
-    Future<List<Diskon>> getDiskonsForMenu(String menuId) async {
+  Future<List<Diskon>> getDiskonsForMenu(String menuId) async {
     final String uid = _auth.currentUser!.uid;
 
     List<Diskon> diskons = [];
@@ -56,23 +55,24 @@ class DiskonService {
       DateTime tanggalMulai = (doc['tanggal_mulai'] as Timestamp).toDate();
       DateTime tanggalSelesai = (doc['tanggal_selesai'] as Timestamp).toDate();
       DateTime now = DateTime.now();
-      bool isActive = now.isAfter(tanggalMulai) && now.isBefore(tanggalSelesai) || now.isAtSameMomentAs(tanggalSelesai);
+      bool isActive =
+          now.isAfter(tanggalMulai) && now.isBefore(tanggalSelesai) ||
+              now.isAtSameMomentAs(tanggalSelesai);
 
       diskons.add(
         Diskon(
-          tanggalMulai: tanggalMulai,
-          tanggalSelesai: tanggalSelesai,
-          diskon: doc['diskon'],
-          diskonType: doc['diskon_type'],
-          id: uid,
-          namaDiskon: doc['nama_diskon'],
-          isActive: isActive
-        ),
+            tanggalMulai: tanggalMulai,
+            tanggalSelesai: tanggalSelesai,
+            diskon: doc['diskon'],
+            diskonType: doc['diskon_type'],
+            id: uid,
+            namaDiskon: doc['nama_diskon'],
+            isActive: isActive),
       );
     }
 
     return diskons;
-  }  
+  }
 
   Future<List<Diskon>> getUserDiscounts() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -176,8 +176,7 @@ class DiskonService {
       final menuId = menuDoc.id;
       final menuData = menuDoc.data();
       final num harga = menuData['harga'] ?? 0;
-      final int originalHarga =
-          harga.round();
+      final int originalHarga = harga.round();
 
       final discountRef = firestore
           .collection('stan')

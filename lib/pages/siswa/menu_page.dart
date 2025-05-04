@@ -42,7 +42,10 @@ class MenuPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DetailMenuPage(menu: menu, hargaDiskon: menu.hargaDiskon,),
+                      builder: (context) => DetailMenuPage(
+                        menu: menu,
+                        hargaDiskon: menu.hargaDiskon,
+                      ),
                     ),
                   );
                 },

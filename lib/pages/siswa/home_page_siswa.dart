@@ -31,14 +31,12 @@ class HomePageSiswa extends StatelessWidget {
     if (menuSnapshot.docs.isEmpty) {
       return [];
     }
-    return menuSnapshot.docs
-        .map((menuDoc) {
-          final data = menuDoc.data() as Map<String, dynamic>? ?? {};
-          return Menu.fromMap(data, menuDoc.id);
-        })
-        .toList();
+    return menuSnapshot.docs.map((menuDoc) {
+      final data = menuDoc.data() as Map<String, dynamic>? ?? {};
+      return Menu.fromMap(data, menuDoc.id);
+    }).toList();
   }
-  
+
   final diskonService = DiskonService();
 
   @override
@@ -76,38 +74,14 @@ class HomePageSiswa extends StatelessWidget {
           return ListView(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Kategori',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 100,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          _buildCategoryItem('Makanan', Icons.restaurant),
-                          _buildCategoryItem('Minuman', Icons.local_drink),
-                          _buildCategoryItem('Snack', Icons.cookie),
-                          _buildCategoryItem('Promo', Icons.discount),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Stan Tersedia',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
                     ListView.builder(
@@ -115,7 +89,8 @@ class HomePageSiswa extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: restaurants.length,
                       itemBuilder: (context, index) {
-                        return _buildRestaurantCard(context, restaurants[index]);
+                        return _buildRestaurantCard(
+                            context, restaurants[index]);
                       },
                     ),
                   ],
@@ -178,7 +153,8 @@ class HomePageSiswa extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
               child: Image.network(
                 'https://picsum.photos/seed/${restaurant.id}/400/200',
                 height: 150,
@@ -193,7 +169,8 @@ class HomePageSiswa extends StatelessWidget {
                 children: [
                   Text(
                     restaurant.name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -202,7 +179,8 @@ class HomePageSiswa extends StatelessWidget {
                       const Text('4.5', style: TextStyle(fontSize: 14)),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(12),
