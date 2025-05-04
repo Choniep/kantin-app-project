@@ -12,6 +12,7 @@ class Menu {
   final String jenisMenu;
   final double? diskon;
   final String? jenisDiskon;
+  final double? hargaDiskon;
 
   Menu({
     required this.id,
@@ -24,6 +25,7 @@ class Menu {
     required this.jenisMenu,
     this.diskon,
     this.jenisDiskon,
+    this.hargaDiskon
   });
 
   factory Menu.fromMap(Map<String, dynamic> data, String documentId) {
@@ -38,6 +40,7 @@ class Menu {
       jenisMenu: data['jenis'] ?? 'Unknown',
       diskon: data['diskon']?.toDouble(),
       jenisDiskon: data['diskon_type'],
+      hargaDiskon: data['harga_diskon'],
     );
   }
 
@@ -53,6 +56,7 @@ class Menu {
       'isDiskon': isDiskon,
       'diskon': diskon,
       'diskon_type': jenisDiskon,
+      'harga_diskon': hargaDiskon,
     };
   }
   
