@@ -44,7 +44,7 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage(widget.menu.photo),
+                            image: NetworkImage(widget.menu.photo),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -78,7 +78,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                         ),
                         const SizedBox(height: 8),
                         // Display the original price with a strike-through if discount exists
-                        widget.hargaDiskon != null && widget.hargaDiskon != widget.menu.price
+                        widget.hargaDiskon != null &&
+                                widget.hargaDiskon != widget.menu.price
                             ? Text(
                                 'Rp ${widget.menu.price.toStringAsFixed(0)}',
                                 style: TextStyle(
@@ -92,13 +93,11 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                         // Display the discounted price (if applicable)
                         Text(
                           'Rp ${widget.hargaDiskon?.toStringAsFixed(0) ?? widget.menu.price.toStringAsFixed(0)}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -162,7 +161,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
             child: ElevatedButton(
               onPressed: () {
                 // Calculate discounted price (if applicable)
-                double discountedPrice = widget.hargaDiskon ?? widget.menu.price;
+                double discountedPrice =
+                    widget.hargaDiskon ?? widget.menu.price;
 
                 final discountedMenu = Menu(
                   id: menuId,
@@ -177,7 +177,8 @@ class _DetailMenuPageState extends State<DetailMenuPage> {
                   jenisDiskon: widget.menu.jenisDiskon,
                 );
 
-                final result = Provider.of<Cart>(context, listen: false).addItem(
+                final result =
+                    Provider.of<Cart>(context, listen: false).addItem(
                   CartItem(menu: discountedMenu, quantity: _quantity),
                 );
 

@@ -1,4 +1,3 @@
-
 import '../menu.dart';
 
 class Restaurant {
@@ -21,33 +20,33 @@ class Restaurant {
   });
 }
 
-List<Restaurant> restaurants = [
-  Restaurant(
-    id: '1',
-    name: 'Stan Mama Tika',
-    rating: 4.5,
-    categories: ['Nasi Goreng', 'Mie Goreng'],
-    menus: [
-      Menu(
-        id: '1',
-        name: 'Nasi Goreng Spesial',
-        description: 'Nasi goreng dengan telur dan ayam',
-        price: 15000,
-        photo: 'lib/assets/images/burgers/beef_burger.webp',
-        stanId: "1",
-        isDiskon: false,
-        jenisMenu: 'makanan'
-      ),
-      Menu(
-        id: '2',
-        name: 'Mie Goreng Spesial',
-        description: 'Mie goreng dengan telur dan ayam',
-        price: 15000,
-        photo: 'lib/assets/images/burgers/beef_burger.webp',
-        stanId: "1",
-        isDiskon: false,
-        jenisMenu: 'minuman',
-      ),
-    ],
-  ),
-];
+// List<Restaurant> restaurants = [
+//   Restaurant(
+//     id: '1',
+//     name: 'Stan Mama Tika',
+//     rating: 4.5,
+//     categories: ['Nasi Goreng', 'Mie Goreng'],
+//     menus: [
+//       Menu(
+//         id: '1',
+//         name: 'Nasi Goreng Spesial',
+//         description: 'Nasi goreng dengan telur dan ayam',
+//         price: 15000,
+//         photo: 'lib/assets/images/burgers/beef_burger.webp',
+//         stanId: "1",
+//         isDiskon: false,
+//         jenisMenu: 'makanan'
+//       ),
+//       Menu(
+//         id: '2',
+//         name: 'Mie Goreng Spesial',
+//         description: 'Mie goreng dengan telur dan ayam',
+//         price: 15000,
+//         photo: 'lib/assets/images/burgers/beef_burger.webp',
+//         stanId: "1",
+//         isDiskon: false,
+//         jenisMenu: 'minuman',
+//       ),
+//     ],
+//   ),
+// ];
