@@ -275,7 +275,18 @@ class _OrderListPageState extends State<OrderListPage> {
                         return Card(
                           margin: const EdgeInsets.all(8),
                           child: ExpansionTile(
-                            title: Text('Order from $siswaName'),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Order from $siswaName'),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Order ID: $orderId',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
+                            ),
                             subtitle: Text(
                               date != null
                                   ? '${date.day}/${date.month}/${date.year}'
@@ -303,7 +314,7 @@ class _OrderListPageState extends State<OrderListPage> {
                                     children: [
                                       ...menuItems.map((item) {
                                         return ListTile(
-                                          title: Text(item['menu_id'] ?? ''),
+                                          title: Text(item['nama_menu']?? ''),
                                           subtitle: Text(
                                               'Quantity: ${item['quantity'] ?? 0}'),
                                         );
@@ -311,15 +322,25 @@ class _OrderListPageState extends State<OrderListPage> {
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 16, vertical: 8),
-                                        child: ElevatedButton(
-                                          onPressed: status == 'siap diambil'
-                                              ? null
-                                              : () {
-                                                  updateOrderStatus(orderId);
-                                                },
-                                          child: const Text(
-                                              'Makanan siap diambil'),
-                                        ),
+                                        child: status == 'selesai'
+                                            ? const Text(
+                                                'Pesanan sudah selesai',
+                                                style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Colors.grey,
+                                                ),
+                                              )
+                                            : ElevatedButton(
+                                                onPressed:
+                                                    status == 'siap diambil'
+                                                        ? null
+                                                        : () {
+                                                            updateOrderStatus(
+                                                                orderId);
+                                                          },
+                                                child: const Text(
+                                                    'Makanan siap diambil'),
+                                              ),
                                       ),
                                     ],
                                   );
