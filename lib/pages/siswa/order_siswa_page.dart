@@ -63,7 +63,7 @@ class _OrderSiswaPageState extends State<OrderSiswaPage> {
               if (date != null)
                 Text('Date: ${date.toLocal().toString().split(' ')[0]}'),
               Text(
-                  'Total Price: \$${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
+                  'Total Price: Rp.${order['totalPrice']?.toStringAsFixed(2) ?? '0.00'}'),
               Text('Status: ${order['status'] ?? 'Unknown'}'),
               // Additional receipt details can be added here
             ],
